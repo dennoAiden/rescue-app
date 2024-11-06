@@ -15,7 +15,7 @@ from models import db, User, Report, Media, Notification, Admin
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True 
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 migrate=Migrate(app,db)
 db.init_app(app)
@@ -168,6 +168,21 @@ class AdminIncidents(Resource):
         incidents = [incident.to_dict() for incident in Admin.query.all()]
         return make_response(jsonify(incidents), 200)
     
+class PostAdminIncidents(Resource):
+    def post(self):
+        data = request.get_json()
+
+        new_action = Admin (
+            incident_report_id = data.get('incident_report_id'),
+            action = data.get('action')
+        )
+
+        db.session.add(new_action)
+        db.session.commit()
+
+        return make_response('Action recorded!!')
+
+    
 class UpdateAdminIncidents(Resource):
     def patch(self, id):
         data = request.get_json()
@@ -202,6 +217,7 @@ api.add_resource(MediaDelete, '/media/<int:id>')
 # routes for admin actions
 api.add_resource(AdminIncidents, '/admin/reports')
 api.add_resource(UpdateAdminIncidents, '/admin/status/<int:id>')
+api.add_resource(PostAdminIncidents, '/admin/status')
 
 
 # routes for notifications
