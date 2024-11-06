@@ -15,6 +15,8 @@ class User(db.Model, SerializerMixin):
     role=db.Column(Enum('admin', 'user'), default='user')
     created_at=db.Column(db.DateTime, default=func.now())
 
+    reports = db.relationship('Report', back_populates='users', cascade='all, delete')
+
 class Admin(db.Model, SerializerMixin):
     __tablename__='admins_acts'
 
@@ -23,6 +25,8 @@ class Admin(db.Model, SerializerMixin):
     action = db.Column(Enum('status_change', 'flagged', 'resolved'))
     admin_id=db.Column(db.Integer, db.ForeignKey('users.id'), )
     create_at=db.Column(db.DateTime, default=func.now())
+
+    reports = db.relationship('Report', back_populates='admin_acts', cascade='all, delete')
 
 class Report(db.Model, SerializerMixin):
     __tablename__='incident_reports'
@@ -37,6 +41,11 @@ class Report(db.Model, SerializerMixin):
     created_at=db.Column(db.DateTime, default=func.now())
     updated_at=db.Column(db.DateTime, default=func.now())
 
+    # relationship
+    user = db.relationship('User', back_populates='incident_reports', cascade='all, delete')
+    admin = db.relationship('Admin', back_populates='incident_reports', cascade='all, delete')
+    medias = db.relationship('Media', back_populates='incident_reports', cascade='all, delete')
+
 class Media(db.Model, SerializerMixin):
     __tablename__='incident_medias'
     
@@ -44,6 +53,10 @@ class Media(db.Model, SerializerMixin):
     incident_report_id=db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
     media_type=db.Column(Enum('image', 'video'), nullable=False)
     media_url=db.Column(db.String, nullable=False)
+
+    report = db.relationship('Report', back_populates='incident_medias', cascade='all, delete')
+
+
 
 class Notification(db.Model, SerializerMixin):
     __tablename__='notifications'
