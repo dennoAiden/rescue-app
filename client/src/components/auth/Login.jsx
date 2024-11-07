@@ -1,18 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, LogIn, Mail, Lock } from 'lucide-react';
-import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-// import toast from 'react-hot-toast';
-// import { loginUser } from '../../redux/actions/authActions'; // Assuming you have a loginUser action
+import toast from 'react-hot-toast';
 
+// Validation schema for the login form
 const loginValidationSchema = Yup.object({
   email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+  password: Yup.string().min(4, 'Password must be at least 8 characters').required('Password is required'),
 });
 
 export default function Login() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const formik = useFormik({
@@ -23,11 +21,28 @@ export default function Login() {
     validationSchema: loginValidationSchema,
     onSubmit: async (values) => {
       try {
-        // Dispatch login action
-        await dispatch(loginUser(values));
-        toast.success('Login successful!');
-        navigate('/');
+        // Send login request to the backend using fetch
+        const response = await fetch('http://127.0.0.1:5555/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
+
+        if (response.ok) {
+          toast.success('Login successful!');
+          // You can handle user session or token storage here if needed
+
+          // Redirect to the home page or dashboard
+          navigate('/');
+        } else {
+          // If login failed, show error message from the backend
+          const errorMessage = await response.text();
+          toast.error(errorMessage || 'Login failed. Please check your credentials.');
+        }
       } catch (error) {
+        // Handle network errors or unexpected issues
         toast.error('Login failed. Please try again.');
       }
     },
