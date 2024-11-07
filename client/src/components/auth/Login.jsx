@@ -1,0 +1,123 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle, LogIn, Mail, Lock } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+// import toast from 'react-hot-toast';
+// import { loginUser } from '../../redux/actions/authActions'; // Assuming you have a loginUser action
+
+const loginValidationSchema = Yup.object({
+  email: Yup.string().email('Invalid email address').required('Email is required'),
+  password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+});
+
+export default function Login() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: loginValidationSchema,
+    onSubmit: async (values) => {
+      try {
+        // Dispatch login action
+        await dispatch(loginUser(values));
+        toast.success('Login successful!');
+        navigate('/');
+      } catch (error) {
+        toast.error('Login failed. Please try again.');
+      }
+    },
+  });
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 p-6">
+      <div className="max-w-md w-full text-white">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <AlertTriangle className="w-10 h-10 text-yellow-500" />
+            <h1 className="text-2xl font-bold">Ajali! Platform</h1>
+          </div>
+          <p className="text-gray-400">Sign in to your account to report incidents</p>
+        </div>
+
+        <form onSubmit={formik.handleSubmit} className="bg-gray-800 rounded-lg p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">Email Address</label>
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                className="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-500"
+                placeholder="you@example.com"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                required
+              />
+              <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+            </div>
+            {formik.touched.email && formik.errors.email && (
+              <div className="text-red-500 text-sm">{formik.errors.email}</div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Password</label>
+            <div className="relative">
+              <input
+                type="password"
+                name="password"
+                className="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-500"
+                placeholder="••••••••"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                required
+              />
+              <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+            </div>
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-sm">{formik.errors.password}</div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center">
+              <input type="checkbox" className="mr-2" />
+              <span>Remember me</span>
+            </label>
+            <Link to="/forgot-password" className="text-yellow-500 hover:text-yellow-400">
+              Forgot password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={formik.isSubmitting}
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-yellow-500 text-gray-900 font-medium rounded-lg hover:bg-yellow-600 transition-colors disabled:opacity-50"
+          >
+            {formik.isSubmitting ? (
+              'Signing in...'
+            ) : (
+              <>
+                <LogIn className="w-5 h-5" />
+                Sign In
+              </>
+            )}
+          </button>
+
+          <p className="text-center text-sm text-gray-400">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-yellow-500 hover:text-yellow-400">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
