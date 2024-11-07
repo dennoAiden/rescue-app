@@ -1,54 +1,41 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useStore } from './store/useStore';
-import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Signup from './pages/Signup'; // Import the new Signup component
-import CreateIncident from './pages/CreateIncident';
-import ViewIncident from './pages/ViewIncident';
-import AdminDashboard from './pages/AdminDashboard';
-
-// Private route for authenticated users
-function PrivateRoute({ children }) {
-  const user = useStore((state) => state.user);
-  return user ? <>{children}</> : <Navigate to="/login" />;
-}
-
-// Admin route for users with admin role
-function AdminRoute({ children }) {
-  const user = useStore((state) => state.user);
-  return user?.role === 'admin' ? <>{children}</> : <Navigate to="/" />;
-}
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout.jsx';
+import AdminDashboard from './components/AdminDashboard.jsx';
+import UserDashboard from './components/UserDashboard.jsx';
+import IncidentReport from './components/user/IncidentReport';
+import IncidentMap from './components/user/IncidentMap';
+import News from './components/user/News';
+import InDetails from './components/user/InDetails';
+import MediaUpload from './components/user/MediaUpload';
+import UserSettings from './components/user/UserSettings';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/signup" element={<Signup />} /> {/* New signup route */}
+        {/* Authentication routes come first */}
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Layout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="create" element={<CreateIncident />} />
-          <Route path="incident/:id" element={<ViewIncident />} />
-          <Route
-            path="admin"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Layout with user/admin routes */}
+        <Route element={<Layout isAdmin={false} />}>
+          <Route path="/" element={<UserDashboard />} />
+          <Route path="/report" element={<IncidentReport />} />
+          <Route path="/map" element={<IncidentMap />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/incidents" element={<InDetails />} />
+          <Route path="/media" element={<MediaUpload />} />
+          <Route path="/settings" element={<UserSettings />} />
+        </Route>
+
+        {/* Admin route */}
+        <Route element={<Layout isAdmin={true} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
