@@ -1,25 +1,21 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
-import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-// import toast from 'react-hot-toast';
-// import { signupUser } from '../../redux/actions/authActions'; // Assuming you have a signupUser action
+import toast from 'react-hot-toast';
 
 // Validation schema with Yup
 const signupValidationSchema = Yup.object({
   name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
   email: Yup.string().email('Invalid email address').required('Email is required'),
   phone: Yup.string().min(10, 'Invalid phone number').required('Phone number is required'),
-  password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+  password: Yup.string().min(4, 'Password must be at least 8 characters').required('Password is required'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password'), null], "Passwords don't match")
     .required('Confirm password is required'),
 });
 
 export default function Signup() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const formik = useFormik({
@@ -33,10 +29,27 @@ export default function Signup() {
     validationSchema: signupValidationSchema,
     onSubmit: async (values) => {
       try {
-        // Dispatch signup action
-        await dispatch(signupUser(values));
-        toast.success('Account created successfully!');
-        navigate('/login');
+        // Make the POST request using fetch
+        const response = await fetch('http://127.0.0.1:5555/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: values.name,
+            email: values.email,
+            password: values.password,
+            role: 'user', // Assuming default role is 'user'
+          }),
+        });
+
+        if (response.ok) {
+          toast.success('Account created successfully!');
+          navigate('/login');
+        } else {
+          const errorData = await response.json();
+          toast.error(errorData.message || 'Signup failed. Please try again.');
+        }
       } catch (error) {
         toast.error('Signup failed. Please try again.');
       }
