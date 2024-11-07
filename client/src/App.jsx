@@ -10,6 +10,8 @@ import MediaUpload from './components/user/MediaUpload';
 import UserSettings from './components/user/UserSettings';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
+import Home from './components/Home';
+
 
 function App() {
   return (
@@ -18,6 +20,7 @@ function App() {
         {/* Authentication routes come first */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<Home />} />
 
         {/* Layout with user/admin routes */}
         <Route element={<Layout isAdmin={false} />}>
