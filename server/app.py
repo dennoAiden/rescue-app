@@ -9,6 +9,7 @@ import os
 
 from flask_restful import Resource,Api
 from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.security import generate_password_hash
 
 from models import db, User, Report, Media, Notification, Admin
 
@@ -23,33 +24,57 @@ api=Api(app)
 bcrypt=Bcrypt(app)
 CORS(app)
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')  # Or specify specific origin
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+    return response
+
 # endpoints
 class Signup(Resource):
     def post(self):
+        # Get JSON data from the request
         data = request.get_json()
 
+        # Check if all necessary fields are provided
+        if not all([data.get('username'), data.get('email'), data.get('password')]):
+            return make_response(jsonify({"message": "Missing required fields"}), 400)
+
+        # Hash the password
+        hashed_password = bcrypt.generate_password_hash(data.get('password'))
+
+        # Create new user
         new_user = User(
             username=data.get('username'),
             email=data.get('email'),
-            password=bcrypt.generate_password_hash(data.get('password')).decode('utf-8'),
-            role=data.get('role')
+            password=hashed_password,
+            role=data.get('role', 'user'),
         )
 
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            return make_response(jsonify({"message": "User added successfully"}), 201)
+        except Exception as e:
+            db.session.rollback()
+            return make_response(jsonify({"message": "Error creating user", "error": str(e)}), 500)
+        
 
-        return make_response('User added successfully', 201)
-    
 class Login(Resource):
     def post(self):
         data = request.get_json()
+        
+        if not data or 'email' not in data or 'password' not in data:
+            return make_response(jsonify({"message": "Email and password are required"}), 400)
 
         user = User.query.filter_by(email=data['email']).first()
 
-        if user and bcrypt.check_password_hash(user.password,data['password']):
-            return make_response('Logged in successful!')
-        return make_response('Check credentials')
-    
+        if user and bcrypt.check_password_hash(user.password, data['password']):
+            return make_response('Logged in successfully!', 200)
+        return make_response('Check credentials', 401)
+
+
 # incident reports endpoint
     
 class Incident(Resource):
