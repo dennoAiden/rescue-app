@@ -31,6 +31,14 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
 
+class GetUser(Resource):
+    def get(self, id):
+        user = User.query.filter(User.id == id).first()
+        if user:
+            return make_response(user.to_dict(), 200)
+        else:
+            return make_response({"message": "User not found"}, 400)
+
 # endpoints
 class Signup(Resource):
     def post(self):
@@ -70,8 +78,10 @@ class Login(Resource):
 
         user = User.query.filter_by(email=data['email']).first()
 
-        if user and bcrypt.check_password_hash(user.password, data['password']):
-            return make_response('Logged in successfully!', 200)
+        if user and bcrypt.check_password_hash(user.password, data.get('password')):
+
+            return make_response(user.to_dict(), 201)
+        
         return make_response('Check credentials', 401)
 
 
@@ -83,7 +93,6 @@ class Incident(Resource):
 
         new_incident = Report (
             user_id = data.get('user_id'),
-            title = data.get('title'),
             description = data.get('description'),
             status = data.get('status'),
             latitude=data.get('latitude'),
@@ -93,7 +102,7 @@ class Incident(Resource):
         db.session.add(new_incident)
         db.session.commit()
 
-        return make_response('Incident posted!!', 201)
+        return make_response(new_incident.to_dict(), 201)
     
     def get(self):
         
@@ -143,6 +152,7 @@ class DeleteIncident(Resource):
 class MediaPost(Resource):
     def post(self):
         data = request.get_json()
+        
 
         new_media = Media (
             incident_report_id = data.get('incident_report_id'),
@@ -225,7 +235,7 @@ class UpdateAdminIncidents(Resource):
 
 
 
-
+api.add_resource(GetUser, '/user/<int:id>')
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
 

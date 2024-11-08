@@ -3,8 +3,9 @@ import { AlertTriangle, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
+import { useContext } from 'react';
+import { AppContext } from '../../AppContext';
 
-// Validation schema with Yup
 const signupValidationSchema = Yup.object({
   name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -17,6 +18,8 @@ const signupValidationSchema = Yup.object({
 
 export default function Signup() {
   const navigate = useNavigate();
+  const value = useContext(AppContext)
+  console.log(value.userData)
 
   const formik = useFormik({
     initialValues: {
@@ -29,7 +32,6 @@ export default function Signup() {
     validationSchema: signupValidationSchema,
     onSubmit: async (values) => {
       try {
-        // Make the POST request using fetch
         const response = await fetch('http://127.0.0.1:5555/signup', {
           method: 'POST',
           headers: {
@@ -39,7 +41,7 @@ export default function Signup() {
             username: values.name,
             email: values.email,
             password: values.password,
-            role: 'user', // Assuming default role is 'user'
+            role: 'user',
           }),
         });
 
@@ -62,7 +64,7 @@ export default function Signup() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <AlertTriangle className="w-10 h-10 text-yellow-500" />
-            <h1 className="text-2xl font-bold">Ajali! Platform</h1>
+            <h1 className="text-2xl font-bold">Zusha! Platform</h1>
           </div>
           <p className="text-gray-400">Create an account to start reporting incidents</p>
         </div>
