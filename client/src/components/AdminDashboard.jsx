@@ -45,36 +45,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
-      <aside
-        className={`fixed sm:relative w-64 bg-gray-800 p-6 space-y-4 sm:block ${
-          sidebarOpen ? 'block' : 'hidden'
-        } sm:block`} // Sidebar is always visible on PC (sm:block)
-      >
-        <h2 className="text-xl font-bold mb-6">Admin Dashboard</h2>
-        <nav className="space-y-2">
-          {stats.map((stat) => (
-            <button
-              key={stat.label}
-              onClick={() => setSelectedStat(stat)}
-              className={`flex items-center w-full px-4 py-2 rounded-lg transition-colors ${
-                selectedStat.label === stat.label ? 'bg-gray-700' : 'bg-gray-800 hover:bg-gray-700'
-              }`}
-            >
-              <stat.icon className={`h-5 w-5 ${stat.color} mr-3`} />
-              <span>{stat.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Hamburger Menu (Mobile) */}
-      <div className="sm:hidden absolute top-4 left-4 p-4 z-10">
-        <Menu
-          className="h-6 w-6 text-white"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        />
-      </div>
 
       {/* Main Content Area */}
       <main

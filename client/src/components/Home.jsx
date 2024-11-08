@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import videoBg from '../videos/response1.mp4';
@@ -6,7 +5,6 @@ import videoBg from '../videos/response1.mp4';
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden text-white">
-      {/* Video Background */}
       <video
         autoPlay
         loop
@@ -18,16 +16,15 @@ export default function LandingPage() {
         <source src={videoBg} type="video/mp4" />
       </video>
 
-      {/* Content Overlay */}
+      <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+        <AlertTriangle className="w-16 h-16 text-yellow-500" />
+        <h1 className="text-4xl font-bold text-white">Zusha!</h1>
+      </div>
+
       <div className="relative z-10 text-center px-4">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <AlertTriangle className="w-20 h-20 text-yellow-500" /> {/* Increased icon size */}
-          <h1 className="text-9xl md:text-6xl font-bold text-white">Ajali!</h1> {/* Increased text size */}
-        </div>
-      
-        
+
         <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto">
-          Report and track incidents in real-time. Help make our communities safer together.
+          Report and track incidents in real-time before or after they happen. Help make our communities safer together.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -46,7 +43,7 @@ export default function LandingPage() {
         </div>
 
         <div className="mt-12 text-gray-400">
-          <p>Emergency? Call 911 immediately</p>
+          <p>An Emergency that can't wait? Click here!</p>
         </div>
       </div>
     </div>

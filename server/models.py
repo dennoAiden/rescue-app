@@ -19,6 +19,8 @@ class User(db.Model, SerializerMixin):
     # Added relationship for Admin actions
     admin_acts = db.relationship('Admin', back_populates='admin', cascade='all, delete')
     # notifications = db.relationship('Notification', back_populates='user', cascade='all, delete')
+    serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
+
 
 
 class Report(db.Model, SerializerMixin):
@@ -26,7 +28,6 @@ class Report(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     status = db.Column(Enum('under investigation', 'resolved', 'rejected'), default='under investigation')
     latitude = db.Column(db.Float, nullable=False)
