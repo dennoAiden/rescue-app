@@ -24,7 +24,7 @@ function App() {
 
         {/* Layout with user/admin routes */}
         <Route element={<Layout isAdmin={false} />}>
-          <Route path="/" element={<UserDashboard />} />
+          <Route path="/user" element={<UserDashboard />} />
           <Route path="/report" element={<IncidentReport />} />
           <Route path="/map" element={<IncidentMap />} />
           <Route path="/news" element={<News />} />
