@@ -35,7 +35,7 @@ export default function Login() {
           // You can handle user session or token storage here if needed
 
           // Redirect to the home page or dashboard
-          navigate('/');
+          navigate('/user');
         } else {
           // If login failed, show error message from the backend
           const errorMessage = await response.text();
