@@ -1,4 +1,4 @@
-import Incident from '../../types/incident';
+import Incident from '../../types/incident';  // Import incident structure
 
 const initialState = {
   incidents: [],
@@ -14,11 +14,12 @@ const incidentReducer = (state = initialState, action) => {
     case 'UPDATE_INCIDENT':
       return {
         ...state,
-        incidents: state.incidents.map(incident =>
-          incident.id === action.payload.id ? { ...Incident, ...action.payload } : incident
+        incidents: state.incidents.map((incident) =>
+          incident.id === action.payload.id
+            ? { ...incident, ...action.payload } // Merge existing incident with payload
+            : incident
         ),
       };
-
     default:
       return state;
   }
