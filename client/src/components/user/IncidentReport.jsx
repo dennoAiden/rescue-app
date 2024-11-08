@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-import Incident from '../../types/incident'; // Import the Incident structure
 import { createIncident } from "../../redux/actions/incidentActions";
 
 export default function ReportIncident() {
@@ -13,10 +12,10 @@ export default function ReportIncident() {
 
   const [location, setLocation] = useState('');
   const [latLong, setLatLong] = useState({ lat: '', long: '' });
+  const [geolocationError, setGeolocationError] = useState('');
 
   const formik = useFormik({
     initialValues: {
-      ...Incident, // Use the Incident model as initial state
       description: '',
       location: '',
       latitude: '',
@@ -29,7 +28,7 @@ export default function ReportIncident() {
       location: Yup.string().required('Location is required'),
     }),
     onSubmit: (values) => {
-      const newIncident = { ...Incident, ...values, userId: user.id }; // Add userId when creating the incident
+      const newIncident = { ...values, userId: user.id }; // Add userId when creating the incident
       dispatch(createIncident(newIncident)); // Dispatch action to create incident
     },
   });
@@ -41,14 +40,19 @@ export default function ReportIncident() {
 
   const handleGeolocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        setLatLong({ lat: latitude, long: longitude });
-        formik.setFieldValue('latitude', latitude);
-        formik.setFieldValue('longitude', longitude);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLatLong({ lat: latitude, long: longitude });
+          formik.setFieldValue('latitude', latitude);
+          formik.setFieldValue('longitude', longitude);
+        },
+        (error) => {
+          setGeolocationError('Failed to retrieve location. Please allow geolocation access.');
+        }
+      );
     } else {
-      alert('Geolocation is not supported by this browser.');
+      setGeolocationError('Geolocation is not supported by this browser.');
     }
   };
 
@@ -102,6 +106,7 @@ export default function ReportIncident() {
                 <div className="text-red-500 text-sm">{formik.errors.location}</div>
               )}
             </label>
+            {geolocationError && <div className="text-red-500 text-sm">{geolocationError}</div>}
           </div>
 
           {/* Evidence (Images and Videos) */}
