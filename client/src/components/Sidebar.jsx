@@ -20,7 +20,7 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
   ] : [
-    { icon: Home, label: 'Home', path: '' },
+    { icon: Home, label: 'Home', path: '/user' },
     { icon: AlertTriangle, label: 'Report an Incident', path: '/report' },
     { icon: Map, label: 'Incidents Map', path: '/map' },
     { icon: Bell, label: 'News & Updates', path: '/news' },
