@@ -3,15 +3,18 @@ import { AlertTriangle, LogIn, Mail, Lock } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
+import { useContext } from 'react';
+import { AppContext } from '../../AppContext';
 
-// Validation schema for the login form
 const loginValidationSchema = Yup.object({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(4, 'Password must be at least 8 characters').required('Password is required'),
+  email: Yup.string().email('Invalid email address').required('Required'),
+  password: Yup.string().min(4, 'Password must be at least 4 characters').required('Required'),
 });
 
 export default function Login() {
   const navigate = useNavigate();
+  const value = useContext(AppContext)
+  // console.log(value.setUserData)
 
   const formik = useFormik({
     initialValues: {
@@ -21,7 +24,7 @@ export default function Login() {
     validationSchema: loginValidationSchema,
     onSubmit: async (values) => {
       try {
-        // Send login request to the backend using fetch
+        
         const response = await fetch('http://127.0.0.1:5555/login', {
           method: 'POST',
           headers: {
@@ -29,20 +32,18 @@ export default function Login() {
           },
           body: JSON.stringify(values),
         });
-
+        
         if (response.ok) {
-          toast.success('Login successful!');
-          // You can handle user session or token storage here if needed
-
-          // Redirect to the home page or dashboard
-          navigate('/user');
+          return response.json().then(data => {
+            localStorage.setItem('user_id', data.id)
+            toast.success('Login successful!');
+            navigate('/user');
+          })
         } else {
-          // If login failed, show error message from the backend
           const errorMessage = await response.text();
           toast.error(errorMessage || 'Login failed. Please check your credentials.');
         }
       } catch (error) {
-        // Handle network errors or unexpected issues
         toast.error('Login failed. Please try again.');
       }
     },
@@ -54,7 +55,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <AlertTriangle className="w-10 h-10 text-yellow-500" />
-            <h1 className="text-2xl font-bold">Ajali! Platform</h1>
+            <h1 className="text-2xl font-bold">Zusha! Platform</h1>
           </div>
           <p className="text-gray-400">Sign in to your account to report incidents</p>
         </div>

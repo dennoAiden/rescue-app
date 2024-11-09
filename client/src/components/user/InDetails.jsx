@@ -1,5 +1,4 @@
 import { AlertTriangle, Clock, MapPin, Camera, MessageSquare } from 'lucide-react';
-import Incident from '../../types/incident'; // Import the Incident model
 
 export default function IncidentDetails() {
   // Example incident data matching the Incident structure
