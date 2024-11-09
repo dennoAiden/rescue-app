@@ -11,7 +11,7 @@ from flask_restful import Resource,Api
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Media, Notification, Admin
+from models import db, User, Report, Media, Notification, Admin, EmergencyReport
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
@@ -174,6 +174,23 @@ class MediaDelete(Resource):
 
         return make_response('Media deleted!!')
     
+class EmergencyPost(Resource):
+    def post(self):
+        data = request.get_json()
+
+        emergency_report = EmergencyReport(
+            name = data.get('name'),
+            description = data.get('description'),
+            status = data.get('status'),
+            latitude=data.get('latitude'),
+            longitude=data.get('longitude'),
+            phone=data.get('phone')
+        ) 
+        db.session.add(emergency_report)
+        db.session.commit()
+
+        return make_response({"message": "Emergency posted successfully"}, 201)
+    
 # endpoints for notifications
 
 # class GetNotifications(Resource):
@@ -245,6 +262,9 @@ api.add_resource(GetIncidentId, '/gets-incident/<int:id>')
 api.add_resource(UpdateIncident, '/updates-incident/<int:id>')
 api.add_resource(DeleteIncident, '/deletes-incident/<int:id>')
 
+# route for emergency
+api.add_resource(EmergencyPost, '/emergency-reporting')
+
 # routes for media
 api.add_resource(MediaPost, '/media')
 api.add_resource(MediaDelete, '/media/<int:id>')
@@ -258,14 +278,6 @@ api.add_resource(PostAdminIncidents, '/admin/status')
 # routes for notifications
 # api.add_resource(GetNotifications, '/notifications')
 
-
-
-
-
-
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5555))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-        
