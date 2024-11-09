@@ -6,7 +6,7 @@ export default function Layout({ isAdmin }) {
     <div className="flex min-h-screen">
       <Sidebar isAdmin={isAdmin} />
       <div className="flex-1 bg-gray-900">
-        <Outlet /> {/* This renders the main content based on the route */}
+        <Outlet />
       </div>
     </div>
   );
