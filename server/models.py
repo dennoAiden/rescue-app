@@ -48,12 +48,13 @@ class Admin(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
+    emergency_only_id = db.Column(db.Integer, db.ForeignKey('emergencies.id'))
     action = db.Column(Enum('status_change', 'flagged', 'resolved'))
     admin_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_at = db.Column(db.DateTime, default=func.now())
 
-    # Relationship to Report
     incident_report = db.relationship('Report', back_populates='admin_acts', cascade='all, delete')
+    emergencies = db.relationship('EmergencyReport', back_populates='admin_acts',)
     # Relationship to User (Admin should reference User)
     admin = db.relationship('User', back_populates='admin_acts', cascade='all, delete')
 
@@ -69,6 +70,20 @@ class Media(db.Model, SerializerMixin):
     # Relationship to Report
     report = db.relationship('Report', back_populates='medias', cascade='all, delete')
 
+class EmergencyReport(db.Model, SerializerMixin):
+    __tablename__ = 'emergencies'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
+    status = db.Column(Enum('under investigation', 'resolved', 'rejected'), default='under investigation')
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    phone = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=func.now())
+    updated_at = db.Column(db.DateTime, default=func.now())
+
+    admin_acts = db.relationship('Admin', back_populates='emergencies')
 
 class Notification(db.Model, SerializerMixin):
     __tablename__ = 'notifications'
