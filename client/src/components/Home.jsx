@@ -1,8 +1,11 @@
+import {useState} from 'react'
 import { Link } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import videoBg from '../videos/response1.mp4';
+import EmergencyReporting from './EmergencyReporting'
 
 export default function LandingPage() {
+  const [showEmergencyReport, setShowEmergencyReport] = useState(false);
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden text-white">
       <video
@@ -42,9 +45,26 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="mt-12 text-gray-400">
+        {/* <div className="mt-12 text-gray-400">
           <p>An Emergency that can't wait? Click here!</p>
+        </div> */}
+
+        <button
+          onClick={() => setShowEmergencyReport(true)}
+          className="mt-8 px-8 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 mx-auto"
+        >
+          <AlertTriangle className="w-5 h-5" />
+          Report Emergency Now
+        </button>
+
+        <div className="mt-12 text-gray-400">
+          <p>Emergency? Call 999 or 112 immediately</p>
         </div>
+
+      {showEmergencyReport && (
+        <EmergencyReporting onClose={() => setShowEmergencyReport(false)} />
+      )}
+
       </div>
     </div>
   );
