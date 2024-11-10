@@ -21,6 +21,8 @@ class User(db.Model, SerializerMixin):
     # notifications = db.relationship('Notification', back_populates='user', cascade='all, delete')
     serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
 
+    
+
 
 
 class Report(db.Model, SerializerMixin):
