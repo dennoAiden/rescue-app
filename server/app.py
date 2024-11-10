@@ -33,7 +33,7 @@ def after_request(response):
 
 class Users(Resource):
     def get(self):
-        users = [user.to_dict for user in User.query.all()]
+        users = [user.to_dict() for user in User.query.all()]
         return make_response(jsonify(users), 200)
 
 

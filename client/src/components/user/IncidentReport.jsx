@@ -103,7 +103,7 @@ export default function IncidentReport() {
           });
       });
     } else {
-      setGeolocationError('Geolocation is not supported by this browser.');
+      alert('Geolocation is not supported by this browser.');
     }
   };
 
@@ -189,7 +189,6 @@ export default function IncidentReport() {
                 <div className="text-red-500 text-sm">{formik.errors.location}</div>
               )}
             </label>
-            {geolocationError && <div className="text-red-500 text-sm">{geolocationError}</div>}
           </div>
 
           <div>
