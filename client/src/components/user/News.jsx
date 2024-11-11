@@ -123,5 +123,3 @@ const NewsUpdates = () => {
 };
 
 export default NewsUpdates;
-
-
