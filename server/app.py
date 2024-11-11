@@ -158,18 +158,17 @@ class DeleteIncident(Resource):
 class MediaPost(Resource):
     def post(self):
         data = request.get_json()
-        
 
-        new_media = Media (
-            incident_report_id = data.get('incident_report_id'),
-            media_type = data.get('media_type'),
-            media_url = data.get('media_url')
+        new_media = Media(
+            incident_report_id=data.get('incident_report_id'),
+            media_images=data.get('media_images', []),
+            media_videos=data.get('media_videos', [])
         )
 
         db.session.add(new_media)
         db.session.commit()
 
-        return make_response('Media added!!')
+        return make_response({"message": "Media added!!"}, 201)
     
 class MediaDelete(Resource):
     def delete(self, id):

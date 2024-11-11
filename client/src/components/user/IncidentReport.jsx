@@ -2,12 +2,15 @@ import { useState, useRef } from 'react';
 import { Camera, MapPin, AlertTriangle } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import toast from 'react-hot-toast';
 
 export default function IncidentReport() {
   const [location, setLocation] = useState('');
   const [latLong, setLatLong] = useState({ lat: '', long: '' });
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [videoPreviews, setVideoPreviews] = useState([]);
   const [responseMessage, setResponseMessage] = useState('');
 
   const imageInputRef = useRef(null);
@@ -28,7 +31,6 @@ export default function IncidentReport() {
     }),
     onSubmit: async (values) => {
       try {
-        // Step 1: Post Incident
         const incidentResponse = await fetch('http://127.0.0.1:5555/incidents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -40,39 +42,51 @@ export default function IncidentReport() {
             user_id: localStorage.getItem('user_id'),
           }),
         });
-        if (incidentResponse.ok) {
-          return incidentResponse.json().then((data) => {
-            console.log(data)
-          })
-        }
-    
+
         const incidentData = await incidentResponse.json();
-        const incidentId = incidentData.id; 
-    
+        const incidentId = incidentData.id;
+
         if (!incidentId) {
           setResponseMessage('Failed to create incident. Please try again.');
           return;
         }
-    
-        const mediaUploads = [...images, ...videos].map((file) => {
-          const formData = new FormData();
-          formData.append('incident_report_id', incidentId);
-          formData.append('media_type', file.type.startsWith('image') ? 'image' : 'video');
-          formData.append('media_url', file); // Use actual file object
-    
-          return fetch('http://127.0.0.1:5555/media', {
-            method: 'POST',
-            body: formData,
+
+        const convertToBase64 = (file) => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
           });
-        });
-    
-        await Promise.all(mediaUploads);
+        };
+
+        const mediaUploads = await Promise.all(
+          [...images, ...videos].map(async (file) => {
+            const base64File = await convertToBase64(file);
+            
+            const mediaData = {
+              incident_report_id: incidentId,
+              media_image: file.type.startsWith('image') ? base64File : null,
+              media_video: file.type.startsWith('video') ? base64File : null,
+            };
+
+            return fetch('http://127.0.0.1:5555/media', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(mediaData),
+            });
+          })
+        );
+
+        toast.success('Incident reported successfully..Help is on the way!')
         setResponseMessage('Incident and media posted successfully!');
       } catch (error) {
         console.error('Error creating incident or uploading media:', error);
         setResponseMessage('Error posting incident or media. Please try again.');
       }
-    }    
+    },
   });
 
   const handleLocationChange = (e) => {
@@ -87,8 +101,7 @@ export default function IncidentReport() {
         setLatLong({ lat: latitude, long: longitude });
         formik.setFieldValue('latitude', latitude);
         formik.setFieldValue('longitude', longitude);
-        
-    
+
         fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=e8e97b4bccb04cbf84c4835212b56571`)
           .then((res) => res.json())
           .then((data) => {
@@ -111,24 +124,18 @@ export default function IncidentReport() {
     const files = Array.from(e.target.files);
     setImages(files);
     formik.setFieldValue('images', files);
+
+    const imageUrls = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(imageUrls);
   };
 
   const handleVideoUpload = (e) => {
     const files = Array.from(e.target.files);
     setVideos(files);
     formik.setFieldValue('videos', files);
-  };
 
-  const handleCaptureVideo = () => {
-    const videoCapture = document.createElement('video');
-    const mediaStream = navigator.mediaDevices.getUserMedia({ video: true });
-    mediaStream.then((stream) => {
-      videoCapture.srcObject = stream;
-      videoCapture.play();
-      videoCapture.onloadedmetadata = () => {
-        setVideos([videoCapture]);
-      };
-    });
+    const videoUrls = files.map(file => URL.createObjectURL(file));
+    setVideoPreviews(videoUrls);
   };
 
   const triggerImageUpload = () => {
@@ -138,7 +145,6 @@ export default function IncidentReport() {
   const triggerVideoUpload = () => {
     videoInputRef.current.click();
   };
-
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -229,20 +235,32 @@ export default function IncidentReport() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full px-6 py-3 bg-yellow-500 text-gray-900 font-medium rounded-lg hover:bg-yellow-600 transition-colors"
-          >
-            Submit Report
-          </button>
-        </form>
-
-        {responseMessage && (
-          <div className="mt-4 text-center text-white">
-            <span>{responseMessage}</span>
+          <div className="mt-4">
+            <span className="text-white">Selected Media:</span>
+            <div className="flex gap-2">
+              {imagePreviews.map((src, index) => (
+                <img key={index} src={src} alt="Selected preview" className="w-16 h-16 object-cover rounded-lg" />
+              ))}
+              {videoPreviews.map((src, index) => (
+                <video key={index} src={src} className="w-16 h-16 rounded-lg" controls />
+              ))}
+            </div>
           </div>
-        )}
+
+          <div>
+            <button
+              type="submit"
+              className="w-full py-3 bg-yellow-500 text-white font-semibold rounded-lg"
+            >
+              Submit Incident
+            </button>
+          </div>
+        </form>
       </div>
+
+      {responseMessage && (
+        <div className="mt-6 text-center text-white">{responseMessage}</div>
+      )}
     </div>
   );
 }
