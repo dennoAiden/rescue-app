@@ -10,20 +10,30 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
+    phone = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     role = db.Column(Enum('admin', 'user'), default='user')
     created_at = db.Column(db.DateTime, default=func.now())
 
-    # Adjust relationship to match 'incident_reports' table in the Report model
     incident_reports = db.relationship('Report', back_populates='user', cascade='all, delete')
     # Added relationship for Admin actions
     admin_acts = db.relationship('Admin', back_populates='admin', cascade='all, delete')
     # notifications = db.relationship('Notification', back_populates='user', cascade='all, delete')
     serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
 
+    @property
+    def reports_count(self):
+        return len(self.incident_reports)
     
-
-
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'phone': self.phone,
+            'created_at': self.created_at,
+            'reports_count': self.reports_count,  # Make sure to include the count
+        }
 
 class Report(db.Model, SerializerMixin):
     __tablename__ = 'incident_reports'
