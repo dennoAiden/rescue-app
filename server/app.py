@@ -31,6 +31,12 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
 
+class Users(Resource):
+    def get(self):
+        users = [user.to_dict() for user in User.query.all()]
+        return make_response(jsonify(users), 200)
+
+
 class GetUser(Resource):
     def get(self, id):
         user = User.query.filter(User.id == id).first()
@@ -253,6 +259,7 @@ class UpdateAdminIncidents(Resource):
 
 
 api.add_resource(GetUser, '/user/<int:id>')
+api.add_resource(Users, '/users')
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
 
