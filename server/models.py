@@ -76,8 +76,8 @@ class Media(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
-    media_type = db.Column(Enum('image', 'video'), nullable=False)
-    media_url = db.Column(db.String, nullable=False)
+    media_image = db.Column(db.String, nullable=True)
+    media_video = db.Column(db.String, nullable=True)
 
     # Relationship to Report
     report = db.relationship('Report', back_populates='medias', cascade='all, delete')

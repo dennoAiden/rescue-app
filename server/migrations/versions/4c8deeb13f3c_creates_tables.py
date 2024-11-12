@@ -6,13 +6,11 @@ Revises:
 Create Date: 2024-11-11 11:51:09.234790
 ========
 """creating models tables
-"""create tables
 
-Revision ID: 0919f7ea2688
+Revision ID: 26b530bee1bd
 Revises: 
 Create Date: 2024-11-11 16:32:41.166539
 >>>>>>>> 06b2a2ea34d98864fd34faa567c03697fd486e49:server/migrations/versions/26b530bee1bd_creating_models_tables.py
-Create Date: 2024-11-12 09:59:43.858043
 
 """
 from alembic import op
@@ -25,7 +23,6 @@ revision = '4c8deeb13f3c'
 ========
 revision = '26b530bee1bd'
 >>>>>>>> 06b2a2ea34d98864fd34faa567c03697fd486e49:server/migrations/versions/26b530bee1bd_creating_models_tables.py
-revision = '0919f7ea2688'
 down_revision = None
 branch_labels = None
 depends_on = None
