@@ -26,7 +26,6 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: Map, label: 'Incidents Map', path: '/map' },
     { icon: Bell, label: 'News & Updates', path: '/news' },
     { icon: FileText, label: 'Incident Details', path: '/incidents' },
-    { icon: Camera, label: 'Add Photos/Videos', path: '/media' },
     { icon: Settings, label: 'App Settings', path: '/settings' }
   ];
 
