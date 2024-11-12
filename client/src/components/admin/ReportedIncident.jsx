@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search,
   Filter,
@@ -11,36 +11,46 @@ import {
   User
 } from 'lucide-react';
 
-const mockIncidents = [
-  {
-    id: 'INC-001',
-    title: 'Traffic Accident on Mombasa Road',
-    description: 'Multiple vehicle collision near Exit 7',
-    location: 'Mombasa Road, Nairobi',
-    status: 'investigating',
-    reporter: 'John Doe',
-    date: '2024-02-28',
-    images: ['https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=800'],
-  },
-  {
-    id: 'INC-002',
-    title: 'Building Fire in CBD',
-    description: 'Commercial building fire on Kimathi Street',
-    location: 'CBD, Nairobi',
-    status: 'pending',
-    reporter: 'Jane Smith',
-    date: '2024-02-28',
-    images: ['https://images.unsplash.com/photo-1599587897943-467f82141a45?w=800'],
-  },
-];
-
 export default function ReportedIncidents() {
+  const [incidents, setIncidents] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
+  useEffect(() => {
+    const fetchIncidents = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5555/incidents');
+        if (!response.ok) {
+          console.error('Failed to fetch incidents:', response.statusText);
+          return;
+        }
+        const data = await response.json();
+        console.log('Fetched incidents:', data);
+        setIncidents(data);
+      } catch (error) {
+        console.error('Error fetching incidents:', error);
+      }
+    };
+
+    fetchIncidents();
+  }, []);
+
   const updateStatus = (id, newStatus) => {
     console.log(`Updating incident ${id} to ${newStatus}`);
+    // Here you could implement an API call to update the incident status
   };
+
+  const filteredIncidents = incidents
+  .filter((incident) => {
+    if (filter === 'all') return true;
+    return incident.status === filter;
+  })
+  .filter((incident) => {
+    const title = incident.title?.toLowerCase() || '';  // Provide an empty string if undefined
+    const description = incident.description?.toLowerCase() || '';  // Provide an empty string if undefined
+    return title.includes(search.toLowerCase()) || description.includes(search.toLowerCase());
+  });
+
 
   return (
     <div className="space-y-6 text-white">
@@ -72,7 +82,7 @@ export default function ReportedIncidents() {
       </div>
 
       <div className="space-y-4">
-        {mockIncidents.map((incident) => (
+        {filteredIncidents.map((incident) => (
           <div key={incident.id} className="bg-gray-800 rounded-lg overflow-hidden">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -94,7 +104,7 @@ export default function ReportedIncidents() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-gray-400">
                     <MapPin className="w-4 h-4" />
-                    <span>{incident.location}</span>
+                    <span>{`${incident.latitude}, ${incident.longitude}`}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-400">
                     <Calendar className="w-4 h-4" />
@@ -108,7 +118,7 @@ export default function ReportedIncidents() {
 
                 <div>
                   <img 
-                    src={incident.images[0]} 
+                    src="https://via.placeholder.com/800" 
                     alt={incident.title}
                     className="w-full h-48 object-cover rounded-lg"
                   />

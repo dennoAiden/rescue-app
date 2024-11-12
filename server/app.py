@@ -52,7 +52,7 @@ class Signup(Resource):
         data = request.get_json()
 
         # Check if all necessary fields are provided
-        if not all([data.get('username'), data.get('email'), data.get('password')]):
+        if not all([data.get('username'), data.get('email'),data.get('phone'), data.get('password')]):
             return make_response(jsonify({"message": "Missing required fields"}), 400)
 
         # Hash the password
@@ -61,6 +61,7 @@ class Signup(Resource):
         # Create new user
         new_user = User(
             username=data.get('username'),
+            phone=data.get('phone'),
             email=data.get('email'),
             password=hashed_password,
             role=data.get('role', 'user'),
@@ -107,7 +108,8 @@ class Incident(Resource):
 
         db.session.add(new_incident)
         db.session.commit()
-
+        
+        print(f"New Incident Created: {new_incident.to_dict()}")
         return make_response(new_incident.to_dict(), 201)
     
     def get(self):
@@ -158,18 +160,17 @@ class DeleteIncident(Resource):
 class MediaPost(Resource):
     def post(self):
         data = request.get_json()
-        
 
-        new_media = Media (
-            incident_report_id = data.get('incident_report_id'),
-            media_type = data.get('media_type'),
-            media_url = data.get('media_url')
+        new_media = Media(
+            incident_report_id=data.get('incident_report_id'),
+            media_images=data.get('media_images', []),
+            media_videos=data.get('media_videos', [])
         )
 
         db.session.add(new_media)
         db.session.commit()
 
-        return make_response('Media added!!')
+        return make_response({"message": "Media added!!"}, 201)
     
 class MediaDelete(Resource):
     def delete(self, id):
@@ -196,6 +197,8 @@ class EmergencyPost(Resource):
         db.session.commit()
 
         return make_response({"message": "Emergency posted successfully"}, 201)
+    
+    
     
 # endpoints for notifications
 
