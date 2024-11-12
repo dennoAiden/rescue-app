@@ -82,6 +82,13 @@ export default function IncidentReport() {
 
         toast.success('Incident reported successfully..Help is on the way!')
         setResponseMessage('Incident and media posted successfully!');
+
+        formik.resetForm();
+        setImages([]);
+        setVideos([]);
+        setImagePreviews([]);
+        setVideoPreviews([]);
+
       } catch (error) {
         console.error('Error creating incident or uploading media:', error);
         setResponseMessage('Error posting incident or media. Please try again.');
