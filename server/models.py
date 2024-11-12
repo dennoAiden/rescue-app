@@ -32,7 +32,7 @@ class User(db.Model, SerializerMixin):
             'email': self.email,
             'phone': self.phone,
             'created_at': self.created_at,
-            'reports_count': self.reports_count,  # Make sure to include the count
+            'reports_count': self.reports_count,
         }
 
 class Report(db.Model, SerializerMixin):
@@ -52,7 +52,9 @@ class Report(db.Model, SerializerMixin):
     # Relationship to Admin actions
     admin_acts = db.relationship('Admin', back_populates='incident_report', cascade='all, delete')
     # Relationship to Media
-    medias = db.relationship('Media', back_populates='report', cascade='all, delete')
+    images = db.relationship('ImageUrl', back_populates='report', cascade='all, delete')
+    # Relationship to Image
+    videos = db.relationship('VideoUrl', back_populates='report', cascade='all, delete')
 
 
 class Admin(db.Model, SerializerMixin):
@@ -71,16 +73,23 @@ class Admin(db.Model, SerializerMixin):
     admin = db.relationship('User', back_populates='admin_acts', cascade='all, delete')
 
 
-class Media(db.Model, SerializerMixin):
-    __tablename__ = 'incident_medias'
+class ImageUrl(db.Model, SerializerMixin):
+    __tablename__ = 'images'
 
     id = db.Column(db.Integer, primary_key=True)
-    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
-    media_image = db.Column(db.String, nullable=True)
-    media_video = db.Column(db.String, nullable=True)
+    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
+    media_image = db.Column(db.String)
 
-    # Relationship to Report
-    report = db.relationship('Report', back_populates='medias', cascade='all, delete')
+    report = db.relationship('Report', back_populates='images', cascade='all, delete')
+
+class VideoUrl(db.Model, SerializerMixin):
+    __tablename__ = 'videos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
+    media_video = db.Column(db.String)
+
+    report = db.relationship('Report', back_populates='videos', cascade='all, delete')
 
 class EmergencyReport(db.Model, SerializerMixin):
     __tablename__ = 'emergencies'
