@@ -11,7 +11,7 @@ from flask_restful import Resource,Api
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Media, Notification, Admin, EmergencyReport
+from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
@@ -142,9 +142,6 @@ class UpdateIncident(Resource):
             db.session.commit()
             return make_response('Item updated successfully')
 
-
-
-    
 class DeleteIncident(Resource):
     
     def delete(self, id):
@@ -156,21 +153,29 @@ class DeleteIncident(Resource):
         return make_response('Incident deleted')
     
 # incident media endpoint
-
 class MediaPost(Resource):
     def post(self):
         data = request.get_json()
+        incident_report_id = data.get('incident_report_id')
 
-        new_media = Media(
-            incident_report_id=data.get('incident_report_id'),
-            media_images=data.get('media_images', []),
-            media_videos=data.get('media_videos', [])
-        )
+        if data.get('media_image'):
+            new_image = ImageUrl(
+                incident_report_id=incident_report_id,
+                media_image=data.get('media_image')
+            )
+            db.session.add(new_image)
 
-        db.session.add(new_media)
+        if data.get('media_video'):
+            new_video = VideoUrl(
+                incident_report_id=incident_report_id,
+                media_video=data.get('media_video')
+            )
+            db.session.add(new_video)
+
         db.session.commit()
 
-        return make_response({"message": "Media added!!"}, 201)
+        return make_response({"message": "Media added!"}, 201)
+
     
 class MediaDelete(Resource):
     def delete(self, id):
