@@ -5,7 +5,6 @@ import {
   AlertTriangle, 
   BarChart2, 
   CheckCircle,
-  Clock,
   XCircle,
   Activity
 } from 'lucide-react';
@@ -44,20 +43,18 @@ export default function AdminOverview() {
   const stats = [
     { label: 'Total Users', value: users.length, icon: <Users />, color: 'bg-blue-500' },
     { label: 'Total Incidents', value: incidents.length, icon: <AlertTriangle />, color: 'bg-yellow-500' },
-    { label: 'Resolved', value: incidents.filter(i => i.status === 'Resolved').length, icon: <CheckCircle />, color: 'bg-green-500' },
-    { label: 'Pending', value: incidents.filter(i => i.status === 'Pending').length, icon: <Clock />, color: 'bg-orange-500' },
-    { label: 'Investigating', value: incidents.filter(i => i.status === 'Investigating').length, icon: <Activity />, color: 'bg-purple-500' },
-    { label: 'Rejected', value: incidents.filter(i => i.status === 'Rejected').length, icon: <XCircle />, color: 'bg-red-500' },
+    { label: 'Resolved', value: incidents.filter(i => i.status === 'resolved').length, icon: <CheckCircle />, color: 'bg-green-500' },
+    { label: 'Investigating', value: incidents.filter(i => i.status === 'under investigation').length, icon: <Activity />, color: 'bg-purple-500' },
+    { label: 'Rejected', value: incidents.filter(i => i.status === 'rejected').length, icon: <XCircle />, color: 'bg-red-500' },
   ];
 
   return (
     <div className="space-y-6 text-white">
-      {/* Header with Title and Button */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <Link
           to="/admin/incidents"
-          className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors"
+          className="px-4 py-6 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors"
         >
           View All Incidents
         </Link>
