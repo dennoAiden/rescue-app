@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import Enum, func,Boolean
+from sqlalchemy import Enum, func, DateTime
+import requests
 
 db = SQLAlchemy()
 
@@ -40,8 +41,8 @@ class User(db.Model, SerializerMixin):
 
 class Report(db.Model, SerializerMixin):
     __tablename__ = 'incident_reports'
-    serialize_rules = ('-user.incident_reports', '-admin_acts.incident_report', '-images.report', '-videos.report')
 
+    serialize_rules = ('-user', '-admin_acts', '-images', '-videos',)
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -49,6 +50,7 @@ class Report(db.Model, SerializerMixin):
     status = db.Column(Enum('under investigation', 'resolved', 'rejected'), default='under investigation')
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
+    response_time = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=func.now())
     updated_at = db.Column(db.DateTime, default=func.now())
 
@@ -61,11 +63,36 @@ class Report(db.Model, SerializerMixin):
     # Relationship to Image
     videos = db.relationship('VideoUrl', back_populates='report', cascade='all, delete')
 
+    def to_dict(self):
+        location = self.reverse_geocode(self.latitude, self.longitude)
+        return {
+            'id': self.id,
+            'description': self.description,
+            'status': self.status,
+            'location': location,
+            'reporter': self.user.username if self.user else None,
+            'date': self.created_at.strftime('%Y-%m-%d'), 
+            'images': [image.media_image for image in self.images],
+            'videos': [video.media_video for video in self.videos]
+        }
+    
+    def reverse_geocode(self, latitude, longitude):
+        api_key = 'e8e97b4bccb04cbf84c4835212b56571'
+        url = f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={api_key}'
+        
+        response = requests.get(url)
+        data = response.json()
+
+        if data and data['results']:
+            return data['results'][0]['formatted']
+        else:
+            return "Location not available"
+
 
 class Admin(db.Model, SerializerMixin):
     __tablename__ = 'admins_acts'
-    serialize_rules = ('-incident_report.admin_acts', '-emergencies.admin_acts', '-admin.admin_acts')
 
+    serialize_rules = ('-incident_report', '-emergencies', '-admin',)
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -82,8 +109,8 @@ class Admin(db.Model, SerializerMixin):
 
 class ImageUrl(db.Model, SerializerMixin):
     __tablename__ = 'images'
-    serialize_rules = ('-report.images',)
 
+    serialize_rules = ('-report',)
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -93,8 +120,8 @@ class ImageUrl(db.Model, SerializerMixin):
 
 class VideoUrl(db.Model, SerializerMixin):
     __tablename__ = 'videos'
-    serialize_rules = ('-report.videos',)
 
+    serialize_rules = ('-report',)
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -104,8 +131,8 @@ class VideoUrl(db.Model, SerializerMixin):
 
 class EmergencyReport(db.Model, SerializerMixin):
     __tablename__ = 'emergencies'
-    serialize_rules = ('-admin_acts.emergencies',)
 
+    serialize_rules = ('-admin_acts',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -118,6 +145,29 @@ class EmergencyReport(db.Model, SerializerMixin):
     updated_at = db.Column(db.DateTime, default=func.now())
 
     admin_acts = db.relationship('Admin', back_populates='emergencies')
+
+    def reverse_geocode(self, latitude, longitude):
+        api_key = 'e8e97b4bccb04cbf84c4835212b56571'
+        url = f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={api_key}'
+        
+        response = requests.get(url)
+        data = response.json()
+
+        if data and data['results']:
+            return data['results'][0]['formatted']
+        else:
+            return "Location not available"
+
+    def to_dict(self):
+        location = self.reverse_geocode(self.latitude, self.longitude)
+        return {
+            'id': self.id,
+            'description': self.description,
+            'location': location,
+            'status': self.status,
+            'reporter': self.name,
+            'date': self.created_at.strftime('%Y-%m-%d')
+        }
 
 class Notification(db.Model, SerializerMixin):
     __tablename__ = 'notifications'

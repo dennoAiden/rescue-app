@@ -44,6 +44,15 @@ class GetUser(Resource):
             return make_response(user.to_dict(), 200)
         else:
             return make_response({"message": "User not found"}, 400)
+        
+    def delete(self, id):
+        user = User.query.get(id)
+        if not user:
+            return make_response({"error": "User not found!"}, 404)
+        
+        db.session.delete(user)
+        db.session.commit()
+        return make_response({"message": f"{user.username} deleted!"}, 200)
 
 class BanUser(Resource):
     def patch(self, id):
@@ -167,16 +176,37 @@ class UpdateIncident(Resource):
     def patch(self, id):
         data = request.get_json()
 
+
         incident = Report.query.get(id)
-        title = data.get('title')
+        if not incident:
+            return make_response({"error": "Incident not found!"}, 404)
         description = data.get('description')
         
         if incident:
-            incident.title = title
             incident.description = description
             db.session.add(incident)
             db.session.commit()
             return make_response('Item updated successfully')
+        
+class UpdateIncidentStatus(Resource):
+    def patch(self, id):
+        data = request.get_json()
+
+        new_status = data.get('status')
+
+
+        incident = Report.query.get(id)
+        if not incident:
+            return make_response({"error": "Incident not found!"}, 404)
+
+        if new_status in ['under investigation', 'resolved', 'rejected']:
+            incident.status = new_status
+            db.session.commit()
+            return make_response({"message": "Status Updated successfully", "incident": incident.to_dict()}, 200)
+        
+        else:
+            return make_response({"error": "Invalid status"})
+        
 
 class DeleteIncident(Resource):
     
@@ -216,13 +246,19 @@ class MediaPost(Resource):
 class MediaDelete(Resource):
     def delete(self, id):
 
-        media_del = Media.query.get(id)
-        db.session.delete(media_del)
+        media_image = ImageUrl.query.get(id)
+        media_video = VideoUrl.query.get(id)
+        db.session.delete(media_image)
+        db.session.delete(media_video)
         db.session.commit()
 
         return make_response('Media deleted!!')
     
 class EmergencyPost(Resource):
+    def get(self):
+        emergencies = [emergency.to_dict() for emergency in EmergencyReport.query.all()]
+        return make_response(jsonify(emergencies), 200)
+
     def post(self):
         data = request.get_json()
 
@@ -283,20 +319,62 @@ class PostAdminIncidents(Resource):
         db.session.commit()
 
         return make_response('Action recorded!!')
-
     
-class UpdateAdminIncidents(Resource):
-    def patch(self, id):
-        data = request.get_json()
+class Analytics(Resource):
+    def get(self):
+        try:
+            # For example, fetching the number of incidents in the last 30 days
+            incident_trends = db.session.query(func.count(Report.id)) \
+                .filter(Report.created_at >= datetime.utcnow() - timedelta(days=30)) \
+                .scalar()
 
-        incident = Admin.query.get(id)
-        action = data.get('action')
+            # Geographic distribution (count of incidents per location)
+            geo_dist = db.session.query(Report.latitude, Report.longitude, func.count(Report.id).label('count')) \
+                .group_by(Report.latitude, Report.longitude).all()
 
-        if incident:
-            incident.action = action
-            db.session.add(incident)
-            db.session.commit()
-            return make_response('Action updated!!')
+            # Convert geo_dist tuples into dictionaries
+            geo_dist = [{"latitude": lat, "longitude": lon, "count": count} for lat, lon, count in geo_dist]
+
+            # Response times (average response time for incidents)
+            avg_response_time = db.session.query(func.avg(Report.response_time)).scalar()
+
+            # Recent Activity (latest user activity)
+            recent_activity = db.session.query(User.username, Report.description, Report.status, Report.created_at) \
+                .join(Report).order_by(Report.created_at.desc()).limit(5).all()
+
+            # Convert recent_activity tuples into dictionaries
+            recent_activity = [{
+                "username": username,
+                "description": description,
+                "status": status,
+                "created_at": created_at.isoformat()  # Convert datetime to string
+            } for username, description, status, created_at in recent_activity]
+
+            # Prepare data for front-end
+            response_data = {
+                "incident_trends": incident_trends,
+                "geo_dist": geo_dist,
+                "avg_response_time": avg_response_time,
+                "recent_activity": recent_activity
+            }
+
+            return make_response(jsonify(response_data), 200)
+        
+        except Exception as e:
+            return make_response(jsonify({"error": str(e)}), 500)
+    
+# class UpdateAdminIncidents(Resource):
+#     def patch(self, id):
+#         data = request.get_json()
+
+#         incident = Admin.query.get(id)
+#         action = data.get('action')
+
+#         if incident:
+#             incident.action = action
+#             db.session.add(incident)
+#             db.session.commit()
+#             return make_response('Action updated!!')
         
 
 
@@ -324,8 +402,12 @@ api.add_resource(MediaDelete, '/media/<int:id>')
 
 # routes for admin actions
 api.add_resource(AdminIncidents, '/admin/reports')
-api.add_resource(UpdateAdminIncidents, '/admin/status/<int:id>')
+# api.add_resource(UpdateAdminIncidents, '/admin/status/<int:id>')
+api.add_resource(UpdateIncidentStatus, '/incident/<int:id>/status')
 api.add_resource(PostAdminIncidents, '/admin/status')
+
+# routes for admin analytics
+api.add_resource(Analytics, '/analytics')
 
 
 # routes for notifications
