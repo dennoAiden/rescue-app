@@ -65,7 +65,7 @@ class Signup(Resource):
             return make_response(jsonify({"message": "Missing required fields"}), 400)
 
         # Hash the password
-        hashed_password = bcrypt.generate_password_hash(data.get('password'))
+        hashed_password = bcrypt.generate_password_hash(data.get('password')).decode('utf-8')
 
         # Create new user
         new_user = User(
