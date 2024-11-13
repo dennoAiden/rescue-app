@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Camera, MapPin, AlertTriangle } from 'lucide-react';
+import { Camera, MapPin } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
@@ -12,12 +12,11 @@ export default function IncidentReport() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreviews, setVideoPreviews] = useState([]);
   const [responseMessage, setResponseMessage] = useState('');
-  const [category, setCategory] = useState(''); // Added state for category
+  // const [category, setCategory] = useState(''); 
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
-  // Define categories and their keywords
   const categories = {
     traffic: ['traffic', 'accident', 'collision', 'crash'],
     medical: ['medical', 'emergency', 'injury', 'sick'],
@@ -41,9 +40,8 @@ export default function IncidentReport() {
     }),
     onSubmit: async (values) => {
       try {
-        // Detect category based on description
         const userDescription = values.description.toLowerCase();
-        let incidentCategory = 'other'; // Default category
+        let incidentCategory = 'other';
 
         for (const [key, keywords] of Object.entries(categories)) {
           if (keywords.some(keyword => userDescription.includes(keyword))) {
@@ -52,8 +50,7 @@ export default function IncidentReport() {
           }
         }
 
-        // Include the detected category in the incident post request
-        const incidentResponse = await fetch('http://127.0.0.1:5555/incidents', {
+        const incidentResponse = await fetch('https://incident-report-98rf.onrender.com/incidents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -62,7 +59,7 @@ export default function IncidentReport() {
             latitude: values.latitude,
             longitude: values.longitude,
             user_id: localStorage.getItem('user_id'),
-            category: incidentCategory, // Pass the category
+            category: incidentCategory,
           }),
         });
 
@@ -93,7 +90,7 @@ export default function IncidentReport() {
               media_video: file.type.startsWith('video') ? base64File : null,
             };
 
-            return fetch('http://127.0.0.1:5555/media', {
+            return fetch('https://incident-report-98rf.onrender.com/media', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

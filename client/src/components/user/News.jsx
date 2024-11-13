@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, Share2, MessageSquare, BookmarkPlus, Clock, Eye, ChevronRight, Filter } from 'lucide-react';
+import { Bell, Share2, MessageSquare, BookmarkPlus, Clock, Eye, Filter } from 'lucide-react';
 
 const NewsUpdates = () => {
   const [news, setNews] = useState([]);

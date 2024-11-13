@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Users, AlertTriangle, CheckCircle, Menu, MapPin } from 'lucide-react';
 
-// Sidebar item and content definition
-const stats = [
-  { label: 'Total Incidents', value: '156', icon: AlertTriangle, color: 'text-yellow-500' },
-  { label: 'Resolved', value: '89', icon: CheckCircle, color: 'text-green-500' },
-  { label: 'Active Users', value: '2,345', icon: Users, color: 'text-blue-500' },
-  { label: 'Monthly Reports', value: '45', icon: BarChart, color: 'text-purple-500' },
-];
+// const stats = [
+//   { label: 'Total Incidents', value: '156', icon: AlertTriangle, color: 'text-yellow-500' },
+//   { label: 'Resolved', value: '89', icon: CheckCircle, color: 'text-green-500' },
+//   { label: 'Active Users', value: '2,345', icon: Users, color: 'text-blue-500' },
+//   { label: 'Monthly Reports', value: '45', icon: BarChart, color: 'text-purple-500' },
+// ];
 
 const AdminDashboard = () => {
   const [selectedStat, setSelectedStat] = useState(stats[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [incidentReports, setIncidentReports] = useState([]);
-  const [selectedIncident, setSelectedIncident] = useState(null);
+  // const [selectedIncident, setSelectedIncident] = useState(null);
 
-  // Fetch incidents from the backend using fetch
+ 
   useEffect(() => {
     fetch('/api/incidents')
       .then(response => response.json())
