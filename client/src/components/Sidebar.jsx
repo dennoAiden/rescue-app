@@ -42,6 +42,7 @@ export default function Sidebar({ isAdmin = false }) {
         <AlertTriangle className="w-8 h-8 text-yellow-400" />
         <h1 className="text-xl font-bold">Ajali! Platform</h1>
       </div>
+      <p>logout</p>
 
       <nav className="space-y-2">
         {navItems.map((item) => (
