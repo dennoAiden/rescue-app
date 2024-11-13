@@ -12,9 +12,19 @@ export default function IncidentReport() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreviews, setVideoPreviews] = useState([]);
   const [responseMessage, setResponseMessage] = useState('');
+  const [category, setCategory] = useState(''); // Added state for category
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
+
+  // Define categories and their keywords
+  const categories = {
+    traffic: ['traffic', 'accident', 'collision', 'crash'],
+    medical: ['medical', 'emergency', 'injury', 'sick'],
+    fire: ['fire', 'burn', 'flame'],
+    security: ['theft', 'robbery', 'steal', 'stolen', 'security'],
+    natural: ['flood', 'earthquake', 'storm', 'landslide']
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -31,6 +41,18 @@ export default function IncidentReport() {
     }),
     onSubmit: async (values) => {
       try {
+        // Detect category based on description
+        const userDescription = values.description.toLowerCase();
+        let incidentCategory = 'other'; // Default category
+
+        for (const [key, keywords] of Object.entries(categories)) {
+          if (keywords.some(keyword => userDescription.includes(keyword))) {
+            incidentCategory = key;
+            break;
+          }
+        }
+
+        // Include the detected category in the incident post request
         const incidentResponse = await fetch('http://127.0.0.1:5555/incidents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -40,6 +62,7 @@ export default function IncidentReport() {
             latitude: values.latitude,
             longitude: values.longitude,
             user_id: localStorage.getItem('user_id'),
+            category: incidentCategory, // Pass the category
           }),
         });
 
@@ -63,7 +86,7 @@ export default function IncidentReport() {
         const mediaUploads = await Promise.all(
           [...images, ...videos].map(async (file) => {
             const base64File = await convertToBase64(file);
-            
+
             const mediaData = {
               incident_report_id: incidentId,
               media_image: file.type.startsWith('image') ? base64File : null,
@@ -80,7 +103,7 @@ export default function IncidentReport() {
           })
         );
 
-        toast.success('Incident reported successfully..Help is on the way!')
+        toast.success('Incident reported successfully..Help is on the way!');
         setResponseMessage('Incident and media posted successfully!');
 
         formik.resetForm();
@@ -88,7 +111,6 @@ export default function IncidentReport() {
         setVideos([]);
         setImagePreviews([]);
         setVideoPreviews([]);
-
       } catch (error) {
         console.error('Error creating incident or uploading media:', error);
         setResponseMessage('Error posting incident or media. Please try again.');
@@ -194,7 +216,7 @@ export default function IncidentReport() {
                   type="button"
                   className="p-2 bg-gray-700 text-gray-400 hover:text-white rounded-lg"
                   onClick={handleGeolocation}
-                >
+                >Use My Location
                   <MapPin className="w-5 h-5" />
                 </button>
               </div>
@@ -228,7 +250,7 @@ export default function IncidentReport() {
                 className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-400 hover:text-white rounded-lg"
                 onClick={triggerVideoUpload}
               >
-                <AlertTriangle className="w-5 h-5" />
+                <Camera className="w-5 h-5" />
                 <span>Add Videos</span>
                 <input
                   ref={videoInputRef}
@@ -240,16 +262,13 @@ export default function IncidentReport() {
                 />
               </button>
             </div>
-          </div>
 
-          <div className="mt-4">
-            <span className="text-white">Selected Media:</span>
-            <div className="flex gap-2">
-              {imagePreviews.map((src, index) => (
-                <img key={index} src={src} alt="Selected preview" className="w-16 h-16 object-cover rounded-lg" />
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {imagePreviews.map((url, idx) => (
+                <img key={idx} src={url} alt={`preview-${idx}`} className="h-24 object-cover rounded-lg" />
               ))}
-              {videoPreviews.map((src, index) => (
-                <video key={index} src={src} className="w-16 h-16 rounded-lg" controls />
+              {videoPreviews.map((url, idx) => (
+                <video key={idx} src={url} className="h-24 object-cover rounded-lg" controls />
               ))}
             </div>
           </div>
@@ -257,16 +276,18 @@ export default function IncidentReport() {
           <div>
             <button
               type="submit"
-              className="w-full py-3 bg-yellow-500 text-white font-semibold rounded-lg"
+              className="w-full py-3 bg-yellow-500 text-white rounded-lg focus:outline-none hover:bg-yellow-400"
             >
-              Submit Incident
+              Report Incident
             </button>
           </div>
         </form>
       </div>
 
       {responseMessage && (
-        <div className="mt-6 text-center text-white">{responseMessage}</div>
+        <div className="mt-4 text-white">
+          <strong>{responseMessage}</strong>
+        </div>
       )}
     </div>
   );
