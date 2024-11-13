@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash
 from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl
 
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
+app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescue_7ocu_user:8ZjZt9bwi8I7UkZsgI4GqyDLwzJXydBu@dpg-csqhge3gbbvc738m679g-a.oregon-postgres.render.com/rescue_7ocu"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
