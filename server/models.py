@@ -1,11 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import Enum, func, DateTime
+from sqlalchemy import Enum, func,Boolean
 
 db = SQLAlchemy()
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
+    serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
@@ -14,6 +15,7 @@ class User(db.Model, SerializerMixin):
     password = db.Column(db.String, nullable=False)
     role = db.Column(Enum('admin', 'user'), default='user')
     created_at = db.Column(db.DateTime, default=func.now())
+    banned = db.Column(Boolean, default=False)
 
     incident_reports = db.relationship('Report', back_populates='user', cascade='all, delete')
     # Added relationship for Admin actions
@@ -33,10 +35,13 @@ class User(db.Model, SerializerMixin):
             'phone': self.phone,
             'created_at': self.created_at,
             'reports_count': self.reports_count,
+            'banned': self.banned
         }
 
 class Report(db.Model, SerializerMixin):
     __tablename__ = 'incident_reports'
+    serialize_rules = ('-user.incident_reports', '-admin_acts.incident_report', '-images.report', '-videos.report')
+
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -59,6 +64,8 @@ class Report(db.Model, SerializerMixin):
 
 class Admin(db.Model, SerializerMixin):
     __tablename__ = 'admins_acts'
+    serialize_rules = ('-incident_report.admin_acts', '-emergencies.admin_acts', '-admin.admin_acts')
+
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -75,6 +82,8 @@ class Admin(db.Model, SerializerMixin):
 
 class ImageUrl(db.Model, SerializerMixin):
     __tablename__ = 'images'
+    serialize_rules = ('-report.images',)
+
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -84,6 +93,8 @@ class ImageUrl(db.Model, SerializerMixin):
 
 class VideoUrl(db.Model, SerializerMixin):
     __tablename__ = 'videos'
+    serialize_rules = ('-report.videos',)
+
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
@@ -93,6 +104,8 @@ class VideoUrl(db.Model, SerializerMixin):
 
 class EmergencyReport(db.Model, SerializerMixin):
     __tablename__ = 'emergencies'
+    serialize_rules = ('-admin_acts.emergencies',)
+
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
