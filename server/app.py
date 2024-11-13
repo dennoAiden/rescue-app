@@ -45,6 +45,31 @@ class GetUser(Resource):
         else:
             return make_response({"message": "User not found"}, 400)
 
+class BanUser(Resource):
+    def patch(self, id):
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found"}, 404
+
+        user.banned = True
+        db.session.commit()
+        return {"message": "User has been banned"}, 200
+
+class UnbanUser(Resource):
+    def patch(self, id):
+        try:
+            user = User.query.get(id)
+            if not user:
+                return {"message": "User not found"}, 404
+            
+            user.banned = False
+            db.session.commit()
+            return {"message": "User has been unbanned"}, 200
+        
+        except Exception as e:
+            print(f"Error unbanning user: {e}")
+            return {"error": str(e)}, 500
+
 # endpoints
 class Signup(Resource):
     def post(self):
@@ -97,6 +122,17 @@ class Login(Resource):
 class Incident(Resource):
     def post(self):
         data = request.get_json()
+
+         # Retrieve the user from the database
+        user_id = data.get('user_id')
+        user = User.query.get(user_id)
+        
+        # Check if the user exists and if they are banned
+        if not user:
+            return make_response(jsonify({"error": "User not found"}), 404)
+        if user.banned:
+            return make_response(jsonify({"error": "User is banned and cannot post incidents"}), 403)
+
 
         new_incident = Report (
             user_id = data.get('user_id'),
@@ -270,6 +306,8 @@ api.add_resource(GetUser, '/user/<int:id>')
 api.add_resource(Users, '/users')
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
+api.add_resource(BanUser,'/users/<int:id>/ban')
+api.add_resource(UnbanUser, '/users/<int:id>/unban')
 
 # routes for incident
 api.add_resource(Incident, '/incidents')
