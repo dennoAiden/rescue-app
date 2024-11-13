@@ -22,19 +22,36 @@ export default function ReportedIncidents() {
         const response = await fetch('http://127.0.0.1:5555/incidents');
         const data = await response.json();
 
-  useEffect(() => {
-    const fetchIncidents = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5555/incidents');
-        if (!response.ok) {
-          console.error('Failed to fetch incidents:', response.statusText);
-          return;
-        }
-        const data = await response.json();
-        console.log('Fetched incidents:', data);
-        setIncidents(data);
+        const userIncidents = await Promise.all(data.map(async (incident) => {
+          const { latitude, longitude } = incident;
+          const location = latitude && longitude ? await fetchLocation(latitude, longitude) : "Location unavailable";
+          return { 
+            ...incident, 
+            location, 
+            type: 'user',
+            images: incident.images || [],
+            videos: incident.videos || [] 
+          };
+        }));
+
+        const emergencyResponse = await fetch('http://127.0.0.1:5555/emergency-reporting');
+        const emergencyData = await emergencyResponse.json();
+
+        const emergencyIncidents = await Promise.all(emergencyData.map(async (emergency) => {
+          const { latitude, longitude } = emergency;
+          const location = latitude && longitude ? await fetchLocation(latitude, longitude) : "Location unavailable";
+          return { 
+            ...emergency, 
+            location, 
+            type: 'emergency',
+            images: emergency.images || [], 
+            videos: emergency.videos || []  
+          };
+        }));
+
+        setIncidents([...userIncidents, ...emergencyIncidents]);
       } catch (error) {
-        console.error('Error fetching incidents:', error);
+        console.error("Error fetching incidents:", error);
       }
     };
 
@@ -141,7 +158,7 @@ export default function ReportedIncidents() {
                 <div className="text-sm space-y-2">
                   <div className="flex items-center gap-2 text-gray-400">
                     <MapPin className="w-4 h-4" />
-                    <span>{`${incident.latitude}, ${incident.longitude}`}</span>
+                    <span>{incident.location}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-400">
                     <Calendar className="w-4 h-4" />
