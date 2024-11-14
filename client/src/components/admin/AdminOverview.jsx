@@ -15,7 +15,7 @@ export default function AdminOverview() {
   
   const fetchUsers = async () => {
     try {
-      const response = await fetch('https://incident-report-98rf.onrender.com/users');
+      const response = await fetch('http://127.0.0.1:5555/users');
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
       setUsers(data);
@@ -37,8 +37,12 @@ export default function AdminOverview() {
 
   useEffect(() => {
     fetchUsers();
-    fetchIncidents();
+    // fetchIncidents();
   }, []);
+
+  useEffect(() => {
+    fetchIncidents()
+  }, [])
 
   const stats = [
     { label: 'Total Users', value: users.length, icon: <Users />, color: 'bg-blue-500' },

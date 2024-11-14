@@ -50,7 +50,7 @@ export default function IncidentReport() {
           }
         }
 
-        const incidentResponse = await fetch('https://incident-report-98rf.onrender.com/incidents', {
+        const incidentResponse = await fetch('http://127.0.0.1:5555/incidents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -90,7 +90,7 @@ export default function IncidentReport() {
               media_video: file.type.startsWith('video') ? base64File : null,
             };
 
-            return fetch('https://incident-report-98rf.onrender.com/media', {
+            return fetch('http://127.0.0.1:5555/media', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
