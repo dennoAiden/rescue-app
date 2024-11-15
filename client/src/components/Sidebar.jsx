@@ -33,7 +33,7 @@ export default function Sidebar({ isAdmin = false }) {
     <div className="w-64 h-100 bg-gray-900 text-white p-4">
       <div className="flex items-center gap-2 mb-8">
         <AlertTriangle className="w-8 h-8 text-yellow-400" />
-        <h1 className="text-xl font-bold">Ajali! Platform</h1>
+        <h1 className="text-xl font-bold">Rescue! Platform</h1>
       </div>
 
       <nav className="space-y-2">

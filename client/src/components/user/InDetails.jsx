@@ -1,7 +1,7 @@
-import { AlertTriangle, Clock, MapPin, Camera, MessageSquare } from 'lucide-react';
+import { Clock, MapPin, Camera, MessageSquare } from 'lucide-react';
 
 export default function IncidentDetails() {
-  // Example incident data matching the Incident structure
+
   const incidents = [
     {
       id: "INC-001",

@@ -14,7 +14,6 @@ const loginValidationSchema = Yup.object({
 export default function Login() {
   const navigate = useNavigate();
   const value = useContext(AppContext)
-  // console.log(value.setUserData)
 
   const formik = useFormik({
     initialValues: {
