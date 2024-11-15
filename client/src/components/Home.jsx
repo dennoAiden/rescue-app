@@ -26,6 +26,8 @@ export default function LandingPage() {
 
       <div className="relative z-10 text-center px-4">
 
+        <p className="text-8xl">We all need a helping hand</p>
+
         <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto">
           Report and track incidents in real-time before or after they happen. Help make our communities safer together.
         </p>
@@ -51,7 +53,7 @@ export default function LandingPage() {
 
         <button
           onClick={() => setShowEmergencyReport(true)}
-          className="mt-8 px-8 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 mx-auto"
+          className="mt-8 p-4 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 mx-auto"
         >
           <AlertTriangle className="w-5 h-5" />
           Report Emergency Now

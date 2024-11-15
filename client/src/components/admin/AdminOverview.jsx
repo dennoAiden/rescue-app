@@ -26,7 +26,7 @@ export default function AdminOverview() {
 
   const fetchIncidents = async () => {
     try {
-      const response = await fetch('https://incident-report-98rf.onrender.com/incidents');
+      const response = await fetch('http://127.0.0.1:5555/incidents');
       if (!response.ok) throw new Error('Failed to fetch incidents');
       const data = await response.json();
       setIncidents(data);
