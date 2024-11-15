@@ -121,6 +121,31 @@ class UnbanUser(Resource):
             print(f"Error unbanning user: {e}")
             return {"error": str(e)}, 500
 
+class BanUser(Resource):
+    def patch(self, id):
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found"}, 404
+
+        user.banned = True
+        db.session.commit()
+        return {"message": "User has been banned"}, 200
+
+class UnbanUser(Resource):
+    def patch(self, id):
+        try:
+            user = User.query.get(id)
+            if not user:
+                return {"message": "User not found"}, 404
+            
+            user.banned = False
+            db.session.commit()
+            return {"message": "User has been unbanned"}, 200
+        
+        except Exception as e:
+            print(f"Error unbanning user: {e}")
+            return {"error": str(e)}, 500
+
 # endpoints
 class Signup(Resource):
     def post(self):

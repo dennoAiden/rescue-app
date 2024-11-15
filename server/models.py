@@ -15,6 +15,7 @@ AdminActionEnum = Enum('status_change', 'flagged', 'resolved', name='admin_actio
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
+    serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
 
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(), nullable=False)
@@ -24,6 +25,7 @@ class User(db.Model, SerializerMixin):
     role = db.Column(UserRoleEnum, default='user')
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     banned = db.Column(db.Boolean, default=False)
+
 
     incident_reports = db.relationship('Report', back_populates='user', cascade='all, delete')
     admin_acts = db.relationship('Admin', back_populates='admin', cascade='all, delete')
