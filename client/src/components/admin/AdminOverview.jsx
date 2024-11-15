@@ -37,8 +37,12 @@ export default function AdminOverview() {
 
   useEffect(() => {
     fetchUsers();
-    fetchIncidents();
+    // fetchIncidents();
   }, []);
+
+  useEffect(() => {
+    fetchIncidents()
+  }, [])
 
   const stats = [
     { label: 'Total Users', value: users.length, icon: <Users />, color: 'bg-blue-500' },

@@ -1,11 +1,14 @@
 from flask import Flask,make_response,request,jsonify,session
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
-from flask_bcrypt import Bcrypt
-from sqlalchemy import func
+# from flask_bcrypt import Bcrypt
+from sqlalchemy import func, MetaData
 from flask_cors import CORS
 import os
+
+from flask_jwt_extended import create_access_token,JWTManager, create_refresh_token, jwt_required, get_jwt_identity, current_user, verify_jwt_in_request, get_jwt
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 from flask_restful import Resource,Api
 from sqlalchemy.exc import SQLAlchemyError
@@ -16,22 +19,61 @@ from models import db, User, Report, Notification, Admin, EmergencyReport, Image
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
+app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
+app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
+app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
+
+CORS(app)
 migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
-bcrypt=Bcrypt(app)
-CORS(app)
+# bcrypt=Bcrypt(app)
+
+
+# initializing JWTManager
+jwt = JWTManager(app)
+
+#  creating a custom hook that helps in knowing the roles of either the buyer or the administrator
+# a method called allow that uses the user roles and give users certain rights to access certain endpoints
+def allow(*roles):
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):  
+            jwt_claims=get_jwt()
+            user_roles=jwt_claims.get('role',None)
+            
+            # Check if the user_role is in the allowed roles
+            if user_roles in roles:
+                return fn(*args, **kwargs)
+            else:
+                # creating and returning a response based on the response_body
+                response_body = {"message": "Access is forbidden"}
+                response = make_response(response_body, 403)
+                return response
+
+        return decorator
+
+    return wrapper
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).first()
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')  # Or specify specific origin
+    response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
 
+
 class Users(Resource):
+    # @jwt_required()
+    # @allow("admin")
     def get(self):
         users = [user.to_dict() for user in User.query.all()]
         return make_response(jsonify(users), 200)
@@ -53,6 +95,31 @@ class GetUser(Resource):
         db.session.delete(user)
         db.session.commit()
         return make_response({"message": f"{user.username} deleted!"}, 200)
+    
+class BanUser(Resource):
+    def patch(self, id):
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found"}, 404
+
+        user.banned = True
+        db.session.commit()
+        return {"message": "User has been banned"}, 200
+
+class UnbanUser(Resource):
+    def patch(self, id):
+        try:
+            user = User.query.get(id)
+            if not user:
+                return {"message": "User not found"}, 404
+            
+            user.banned = False
+            db.session.commit()
+            return {"message": "User has been unbanned"}, 200
+        
+        except Exception as e:
+            print(f"Error unbanning user: {e}")
+            return {"error": str(e)}, 500
 
 # endpoints
 class Signup(Resource):
@@ -63,16 +130,29 @@ class Signup(Resource):
         # Check if all necessary fields are provided
         if not all([data.get('username'), data.get('email'),data.get('phone'), data.get('password')]):
             return make_response(jsonify({"message": "Missing required fields"}), 400)
+        
+        # Validate email format
+        if "@" not in data["email"]:
+            # creating and returning a response based on the response body
+            response_body ={"message": "Please include an '@' in the email address."}
+            response = make_response(response_body, 400)
+            return response
 
-        # Hash the password
-        hashed_password = bcrypt.generate_password_hash(data.get('password'))
+        # Check if email already exists in the database
+        if User.query.filter_by(email=data["email"]).first():
+            # creating and returning a response based on the response body
+            response_body ={"message": "Email already exists"}
+            response = make_response(response_body, 400)
+            return response
+
+        password = generate_password_hash(data["password"])
 
         # Create new user
         new_user = User(
             username=data.get('username'),
             phone=data.get('phone'),
             email=data.get('email'),
-            password=hashed_password,
+            password=password,
             role=data.get('role', 'user'),
         )
 
@@ -85,20 +165,7 @@ class Signup(Resource):
             return make_response(jsonify({"message": "Error creating user", "error": str(e)}), 500)
         
 
-class Login(Resource):
-    def post(self):
-        data = request.get_json()
-        
-        if not data or 'email' not in data or 'password' not in data:
-            return make_response(jsonify({"message": "Email and password are required"}), 400)
 
-        user = User.query.filter_by(email=data['email']).first()
-
-        if user and bcrypt.check_password_hash(user.password, data.get('password')):
-
-            return make_response(user.to_dict(), 201)
-        
-        return make_response('Check credentials', 401)
 
 
 # incident reports endpoint
@@ -106,6 +173,15 @@ class Login(Resource):
 class Incident(Resource):
     def post(self):
         data = request.get_json()
+
+        user_id = data.get('user_id')
+        user = User.query.get(user_id)
+        
+        # Check if the user exists and if they are banned
+        if not user:
+            return make_response(jsonify({"error": "User not found"}), 404)
+        if user.banned:
+            return make_response(jsonify({"error": "User is banned and cannot post incidents"}), 403)
 
         new_incident = Report (
             user_id = data.get('user_id'),
@@ -121,8 +197,7 @@ class Incident(Resource):
         print(f"New Incident Created: {new_incident.to_dict()}")
         return make_response(new_incident.to_dict(), 201)
     
-    def get(self):
-        
+    def get(self):        
         incidents = [incident.to_dict() for incident in Report.query.all()]
         
         return make_response(jsonify(incidents), 200)
@@ -339,6 +414,40 @@ class Analytics(Resource):
 #             db.session.add(incident)
 #             db.session.commit()
 #             return make_response('Action updated!!')
+
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+        email = data["email"]
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return make_response({"message": f"User with email {email} does not exist"}, 404)
+        
+        if not check_password_hash(user.password, data["password"]):
+            return make_response({"message": "The password entered is incorrect"}, 403)
+        
+        # creating an access and a refresh token
+        access_token = create_access_token(identity=user.id, additional_claims={"role": user.role})
+        refresh_token = create_refresh_token(identity=user.id)
+
+        user1 = user.to_dict()
+
+        return{
+            "message": "Logged in",
+            "user_data": user1,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "role": user.role
+        }
+    #  a method to refresh the token
+    @jwt_required(refresh = True)
+    def get(self):
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity)
+        response = jsonify(access_token=access_token)
+        return response
         
 
 
@@ -348,6 +457,8 @@ api.add_resource(GetUser, '/user/<int:id>')
 api.add_resource(Users, '/users')
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
+api.add_resource(BanUser,'/users/<int:id>/ban')
+api.add_resource(UnbanUser, '/users/<int:id>/unban')
 
 # routes for incident
 api.add_resource(Incident, '/incidents')

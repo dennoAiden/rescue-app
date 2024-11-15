@@ -34,7 +34,6 @@ export default function UserDashboard() {
         </div>
 
         <div className="space-y-6">
-          {/* About Section with Image at Top */}
           <div className="bg-gray-800 rounded-lg p-6 text-center">
             <img
               src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop"
@@ -48,7 +47,6 @@ export default function UserDashboard() {
               reporting help save lives.
             </p>
 
-            {/* Action Buttons */}
             <div className="mt-4 flex gap-4 justify-center">
               <button className="flex items-center gap-2 text-gray-400 hover:text-white">
                 <ThumbsUp className="w-5 h-5" />
@@ -65,7 +63,6 @@ export default function UserDashboard() {
             </div>
           </div>
 
-          {/* Recent Alerts Section */}
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-xl font-bold mb-4 text-white">Recent Alerts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-white">
