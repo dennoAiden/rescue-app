@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   AlertTriangle, 
   Map, 
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar({ isAdmin = false }) {
+  const navigate = useNavigate();
   const navItems = isAdmin ? [
     { icon: Home, label: 'Dashboard', path: '/admin/d' },
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
@@ -29,12 +31,17 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: Settings, label: 'App Settings', path: '/settings' }
   ];
 
-  return (
+  const handleLogout = () => {
+    localStorage.removeItem("user_id");
+    navigate("/");
+  };
+ return (
     <div className="w-64 h-100 bg-gray-900 text-white p-4">
       <div className="flex items-center gap-2 mb-8">
         <AlertTriangle className="w-8 h-8 text-yellow-400" />
         <h1 className="text-xl font-bold">Rescue! Platform</h1>
       </div>
+      <p>logout</p>
 
       <nav className="space-y-2">
         {navItems.map((item) => (
@@ -54,9 +61,11 @@ export default function Sidebar({ isAdmin = false }) {
           </NavLink>
         ))}
       </nav>
+      <h1>hi</h1>
 
       <div className="absolute bottom-4 left-4 right-4">
-        <button className="flex items-center gap-2 w-full px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+        <button onClick={handleLogout} className="flex items-center gap-2 w-full px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+
           <LogOut className="w-5 h-5" />
           <span>Log Out</span>
         </button>
