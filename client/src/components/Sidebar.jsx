@@ -18,7 +18,7 @@ export default function Sidebar({ isAdmin = false }) {
   const navItems = isAdmin ? [
     { icon: Home, label: 'Dashboard', path: '/admin/d' },
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
-    { icon: User, label: 'User Submissions', path: '/admin/usermanagement' },
+    { icon: User, label: 'User Submissions', path: '/admin/user' },
     {icon: User, label: 'User Management', path: '/admin/usermanagement'},
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
@@ -28,7 +28,6 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: Map, label: 'Incidents Map', path: '/map' },
     { icon: Bell, label: 'News & Updates', path: '/news' },
     { icon: FileText, label: 'Incident Details', path: '/incidents' },
-    { icon: Camera, label: 'Add Photos/Videos', path: '/media' },
     { icon: Settings, label: 'App Settings', path: '/settings' }
   ];
 
@@ -40,7 +39,7 @@ export default function Sidebar({ isAdmin = false }) {
     <div className="w-64 h-100 bg-gray-900 text-white p-4">
       <div className="flex items-center gap-2 mb-8">
         <AlertTriangle className="w-8 h-8 text-yellow-400" />
-        <h1 className="text-xl font-bold">Ajali! Platform</h1>
+        <h1 className="text-xl font-bold">Rescue! Platform</h1>
       </div>
       <p>logout</p>
 

@@ -8,8 +8,6 @@ export default function EmergencyReport({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
   const [location, setLocation] = useState('');
-  const imageInputRef = useRef(null);
-  const videoInputRef = useRef(null);
 
   const formik = useFormik({
     initialValues: {
