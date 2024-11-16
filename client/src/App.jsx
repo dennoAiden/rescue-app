@@ -11,6 +11,9 @@ import UserSettings from './components/user/UserSettings';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import Home from './components/Home';
+import Services from './components/Services';
+import About from './components/About';
+import Contact from './components/Contact';
 
 import AppSettings from './components/admin/AppSettings.jsx'
 import AdminOverview from './components/admin/AdminOverview.jsx';
@@ -27,6 +30,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/" element={<Home />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* Layout with user/admin routes */}
         <Route element={<Layout isAdmin={false} />}>

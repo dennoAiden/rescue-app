@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import Enum, func, DateTime
+from sqlalchemy import Enum, func, DateTime, Boolean
 import requests
-
 db = SQLAlchemy()
 
 class User(db.Model, SerializerMixin):
