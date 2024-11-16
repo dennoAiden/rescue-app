@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
 from flask_cors import CORS
+import cloudinary
+import cloudinary.uploader
 import os
 
 from flask_jwt_extended import create_access_token,JWTManager, create_refresh_token, jwt_required, get_jwt_identity, current_user, verify_jwt_in_request, get_jwt
@@ -30,6 +32,13 @@ migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
 # bcrypt=Bcrypt(app)
+
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name="dyc1darzf",
+    api_key="483633628986175",
+    api_secret="zbZ4TzmyJEoHiLytJFW4QxePSOI"
+)
 
 
 # initializing JWTManager
@@ -69,6 +78,7 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
+
 
 
 class Users(Resource):
@@ -473,6 +483,33 @@ class Login(Resource):
         access_token = create_access_token(identity=identity)
         response = jsonify(access_token=access_token)
         return response
+    
+class MediaUpload(Resource):
+    def post(self):
+        if 'file' not in request.files:
+            return {"error": "No file part in the request"}, 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return {"error": "No file selected"}, 400
+
+        # Validate the file type
+        allowed_extensions = {'image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/mpeg', 'video/quicktime'}
+        if file.content_type not in allowed_extensions:
+            return {"error": "Invalid file type. Only images and videos are allowed."}, 400
+
+        try:
+            # Upload the file to Cloudinary
+            result = cloudinary.uploader.upload(file, resource_type="auto")
+            return {
+                "message": "File uploaded successfully",
+                "url": result['secure_url'],
+                "public_id": result['public_id'],
+                "media_type": result.get('resource_type', 'unknown')
+            }, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
         
 
 
@@ -497,6 +534,7 @@ api.add_resource(EmergencyPost, '/emergency-reporting')
 # routes for media
 api.add_resource(MediaPost, '/media')
 api.add_resource(MediaDelete, '/media/<int:id>')
+api.add_resource(MediaUpload, '/upload')
 
 # routes for admin actions
 api.add_resource(AdminIncidents, '/admin/reports')
