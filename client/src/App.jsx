@@ -12,7 +12,7 @@ import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import Home from './components/Home';
 
-import AppSettings from './components/admin/AppSettings.jsx'
+import AppSettings from './components/admin/AppSettings.jsx';
 import AdminOverview from './components/admin/AdminOverview.jsx';
 import Analytics from './components/admin/Analytics.jsx'
 import UserData from './components/admin/UserData.jsx'
