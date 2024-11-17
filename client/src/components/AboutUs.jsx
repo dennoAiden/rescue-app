@@ -1,3 +1,4 @@
+
 import { Megaphone, MapPin, Camera, Bell } from "lucide-react";
 
 const AboutPage = () => {
