@@ -202,7 +202,8 @@ class Rating(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
-    rating_value = db.Column(db.Integer, nullable=False)  # Rating value (e.g., 1 to 5 stars)
+    rating_value = db.Column(db.Integer, nullable=False)
+    feedback = db.Column(db.String(), nullable=False) 
     created_at = db.Column(db.DateTime)
 
     user = db.relationship('User', back_populates='ratings', cascade='all, delete')

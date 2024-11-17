@@ -3,6 +3,7 @@ import { AlertTriangle, Clock, MapPin, Camera, MessageSquare, Star } from "lucid
 import { StarRating } from "../StarRating.jsx";
 import { ReviewCard } from "../ReviewCard.jsx";
 import { ReviewForm } from "../ReviewForm.jsx";
+import { toast } from "react-toastify";
 
 export default function IncidentDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -32,12 +33,11 @@ export default function IncidentDetails() {
   const handleSubmitReview = (reviewData) => {
     if (!selectedIncidentId) return;
 
-    // Check if user already reviewed this incident
     const existingReview = reviews.find(
       (review) => review.incidentId === selectedIncidentId && review.userId === userId
     );
     if (existingReview) {
-      alert("You have already rated this incident.");
+      toast("You have already rated this incident.");
       return;
     }
 
@@ -48,7 +48,7 @@ export default function IncidentDetails() {
       rating: reviewData.rating,
       date: new Date().toISOString().split('T')[0],
       incidentId: selectedIncidentId,
-      userId: userId // Store userId with review
+      userId: userId 
     };
     setReviews([newReview, ...reviews]);
     setShowReviewForm(false);
@@ -93,7 +93,7 @@ export default function IncidentDetails() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-400 mb-4">
                       <Clock className="w-4 h-4" />
-                      <span>{incident.timestamp}</span>
+                      <span>{incident.created_at}</span>
                     </div>
                     <p className="text-gray-300">{incident.description}</p>
                   </div>
@@ -110,7 +110,7 @@ export default function IncidentDetails() {
                   <div>
                     {incident.video && incident.video.length > 0 && (
                       <video 
-                        src={incident.video[0]?.media_video} 
+                        src={incident.videos[0]?.media_video} 
                         controls 
                         className="w-full h-48 rounded-lg"
                       />
@@ -120,14 +120,14 @@ export default function IncidentDetails() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-4">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-400 hover:text-white rounded-lg">
+                  {/* <button className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-400 hover:text-white rounded-lg">
                     <Camera className="w-4 h-4" />
                     <span>Add Media</span>
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-400 hover:text-white rounded-lg">
                     <MessageSquare className="w-4 h-4" />
                     <span>Comment</span>
-                  </button>
+                  </button> */}
                   <button 
                     onClick={() => {
                       setSelectedIncidentId(incident.id);
