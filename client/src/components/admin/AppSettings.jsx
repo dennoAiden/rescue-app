@@ -20,7 +20,6 @@ export default function UserSettings() {
         {({ values }) => (
           <Form>
             <div className="space-y-6">
-              {/* Notifications */}
               <div className="bg-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-medium mb-4">Notifications</h2>
                 <div className="space-y-4">
@@ -51,7 +50,6 @@ export default function UserSettings() {
                 </div>
               </div>
 
-              {/* Appearance */}
               <div className="bg-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-medium mb-4">Appearance</h2>
                 <div className="space-y-4">
@@ -70,7 +68,6 @@ export default function UserSettings() {
                 </div>
               </div>
 
-              {/* Language */}
               <div className="bg-gray-800 rounded-lg p-6">
                 <h2 className="text-xl font-medium mb-4">Language</h2>
                 <div className="flex items-center gap-3">

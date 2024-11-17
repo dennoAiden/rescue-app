@@ -6,7 +6,6 @@ const Header = ({ userName, profileImageUrl }) => {
     <header className="bg-[#2a2f33] shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Search Bar */}
           <div className="flex-1 flex items-center">
             <div className="relative w-96">
               <input
@@ -18,14 +17,11 @@ const Header = ({ userName, profileImageUrl }) => {
             </div>
           </div>
 
-          {/* Notifications and Profile Section */}
           <div className="flex items-center space-x-4">
-            {/* Bell Icon for Notifications */}
             <button className="p-2 text-gray-400 hover:text-white">
               <Bell className="h-6 w-6" />
             </button>
 
-            {/* Profile Picture and User Name */}
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-300">{userName || 'John Doe'}</span>
               <img

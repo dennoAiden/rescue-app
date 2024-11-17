@@ -7,13 +7,12 @@ import IncidentReport from './components/user/IncidentReport';
 import IncidentMap from './components/user/IncidentMap';
 import News from './components/user/News';
 import InDetails from './components/user/InDetails';
-import MediaUpload from './components/user/MediaUpload';
 import UserSettings from './components/user/UserSettings';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import Home from './components/Home';
 
-import AppSettings from './components/admin/AppSettings.jsx'
+import AppSettings from './components/admin/AppSettings.jsx';
 import AdminOverview from './components/admin/AdminOverview.jsx';
 import Analytics from './components/admin/Analytics.jsx'
 import UserData from './components/admin/UserData.jsx'
@@ -38,7 +37,6 @@ function App() {
           <Route path="/map" element={<IncidentMap />} />
           <Route path="/news" element={<News />} />
           <Route path="/incidents" element={<InDetails />} />
-          <Route path="/media" element={<MediaUpload />} />
           <Route path="/settings" element={<UserSettings />} />
 
           <Route path="/about" element={<AboutUs />} />

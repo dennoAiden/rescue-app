@@ -1,98 +1,209 @@
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import Enum, func, DateTime
+from sqlalchemy import func, MetaData
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from enum import Enum
 
-db = SQLAlchemy()
+import requests
+
+metadata = MetaData()
+db = SQLAlchemy(metadata=metadata)
+
+# Define Enums for reuse with PostgreSQL compatibility
+# UserRoleEnum = Enum('admin', 'user', name='user_roles', create_type=True)
+# ReportStatusEnum = Enum('under investigation', 'resolved', 'rejected', name='report_status', create_type=True)
+# AdminActionEnum = Enum('status_change', 'flagged', 'resolved', name='admin_actions', create_type=True)
+
+class UserRoleEnum(Enum):
+    user = 'user'
+    admin = 'admin'
+
+class ReportStatusEnum(Enum):
+    under_investigation = 'under investigation'
+    resolved = 'resolved'
+    rejected = 'rejected'
+
+class AdminActionEnum(Enum):
+    status_change = 'status change'
+    flagged = 'flagged'
+    resolved = 'resolved'
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    role = db.Column(Enum('admin', 'user'), default='user')
-    created_at = db.Column(db.DateTime, default=func.now())
+    id = db.Column(db.Integer(), primary_key=True)
+    username = db.Column(db.String(), nullable=False)
+    email = db.Column(db.String(), unique=True, nullable=False)
+    phone = db.Column(db.String(), nullable=False)
+    password = db.Column(db.String(), nullable=False)
+    role = db.Column(db.String())
+    created_at = db.Column(db.DateTime)
+    banned = db.Column(db.Boolean, default=False)
 
-    # Adjust relationship to match 'incident_reports' table in the Report model
+
     incident_reports = db.relationship('Report', back_populates='user', cascade='all, delete')
-    # Added relationship for Admin actions
     admin_acts = db.relationship('Admin', back_populates='admin', cascade='all, delete')
-    # notifications = db.relationship('Notification', back_populates='user', cascade='all, delete')
-    serialize_rules = ('-incident_reports', '-admin_acts', '-password',)
+    ratings = db.relationship('Rating', back_populates='user', cascade='all, delete')
+    
+    serialize_rules = ('-incident_reports.id', '-admin_acts', '-password', )
 
-
+    @property
+    def reports_count(self):
+        return len(self.incident_reports)
+    
+    # def to_dict(self):
+    #     return {
+    #         'id': self.id,
+    #         'username': self.username,
+    #         'email': self.email,
+    #         'phone': self.phone,
+    #         'created_at': self.created_at,
+    #         'reports_count': self.reports_count,
+    #         'banned': self.banned
+    #     }
+    
 
 class Report(db.Model, SerializerMixin):
     __tablename__ = 'incident_reports'
 
+    serialize_rules = ('-user', '-admin_acts',)
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    description = db.Column(db.String, nullable=False)
-    status = db.Column(Enum('under investigation', 'resolved', 'rejected'), default='under investigation')
+    description = db.Column(db.String(), nullable=False)
+    status = db.Column(db.String(), default='under investigation')
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, default=func.now())
-    updated_at = db.Column(db.DateTime, default=func.now())
+    response_time = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
 
-    # Relationship to the User
     user = db.relationship('User', back_populates='incident_reports', cascade='all, delete')
-    # Relationship to Admin actions
     admin_acts = db.relationship('Admin', back_populates='incident_report', cascade='all, delete')
-    # Relationship to Media
-    medias = db.relationship('Media', back_populates='report', cascade='all, delete')
+    images = db.relationship('ImageUrl', back_populates='report', cascade='all, delete')
+    videos = db.relationship('VideoUrl', back_populates='report', cascade='all, delete')
+    ratings = db.relationship('Rating', back_populates='report', cascade='all, delete')
 
+    # def to_dict(self):
+    #     location = self.reverse_geocode(self.latitude, self.longitude)
+    #     return {
+    #         'id': self.id,
+    #         'description': self.description,
+    #         'status': self.status,
+    #         'location': location,
+    #         'reporter': self.user.username if self.user else None,
+    #         'date': self.created_at, 
+    #         'images': [image.media_image for image in self.images],
+    #         'videos': [video.media_video for video in self.videos]
+    #     }
+    
+    def reverse_geocode(self, latitude, longitude):
+        api_key = 'your_api_key_here'
+        url = f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={api_key}'
+        
+        response = requests.get(url)
+        data = response.json()
+
+        if data and data['results']:
+            return data['results'][0]['formatted']
+        else:
+            return "Location not available"
 
 class Admin(db.Model, SerializerMixin):
-    __tablename__ = 'admins_acts'
+    __tablename__ = 'admin_acts'
+
+    serialize_rules = ('-incident_report', '-emergencies', '-admin',)
 
     id = db.Column(db.Integer, primary_key=True)
     incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
     emergency_only_id = db.Column(db.Integer, db.ForeignKey('emergencies.id'))
-    action = db.Column(Enum('status_change', 'flagged', 'resolved'))
+    action = db.Column(db.String())
     admin_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    create_at = db.Column(db.DateTime, default=func.now())
+    created_at = db.Column(db.DateTime)
 
     incident_report = db.relationship('Report', back_populates='admin_acts', cascade='all, delete')
-    emergencies = db.relationship('EmergencyReport', back_populates='admin_acts',)
-    # Relationship to User (Admin should reference User)
+    emergencies = db.relationship('EmergencyReport', back_populates='admin_acts')
     admin = db.relationship('User', back_populates='admin_acts', cascade='all, delete')
 
+class ImageUrl(db.Model, SerializerMixin):
+    __tablename__ = 'images'
 
-class Media(db.Model, SerializerMixin):
-    __tablename__ = 'incident_medias'
+    serialize_rules = ('-report',)
 
     id = db.Column(db.Integer, primary_key=True)
-    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
-    media_type = db.Column(Enum('image', 'video'), nullable=False)
-    media_url = db.Column(db.String, nullable=False)
+    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
+    media_image = db.Column(db.String())
 
-    # Relationship to Report
-    report = db.relationship('Report', back_populates='medias', cascade='all, delete')
+    report = db.relationship('Report', back_populates='images', cascade='all, delete')
+
+class VideoUrl(db.Model, SerializerMixin):
+    __tablename__ = 'videos'
+
+    serialize_rules = ('-report',)
+
+    id = db.Column(db.Integer, primary_key=True)
+    incident_report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'))
+    media_video = db.Column(db.String())
+
+    report = db.relationship('Report', back_populates='videos', cascade='all, delete')
 
 class EmergencyReport(db.Model, SerializerMixin):
     __tablename__ = 'emergencies'
 
+    serialize_rules = ('-admin_acts',)
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, nullable=False)
-    status = db.Column(Enum('under investigation', 'resolved', 'rejected'), default='under investigation')
+    name = db.Column(db.String(), nullable=False)
+    description = db.Column(db.String(), nullable=False)
+    status = db.Column(db.String(), default='under investigation')
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     phone = db.Column(db.Integer, nullable=False)
-    created_at = db.Column(db.DateTime, default=func.now())
-    updated_at = db.Column(db.DateTime, default=func.now())
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
 
     admin_acts = db.relationship('Admin', back_populates='emergencies')
+
+    def reverse_geocode(self, latitude, longitude):
+        api_key = 'your_api_key_here'
+        url = f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={api_key}'
+        
+        response = requests.get(url)
+        data = response.json()
+
+        if data and data['results']:
+            return data['results'][0]['formatted']
+        else:
+            return "Location not available"
+
+    def to_dict(self):
+        location = self.reverse_geocode(self.latitude, self.longitude)
+        return {
+            'id': self.id,
+            'description': self.description,
+            'location': location,
+            'status': self.status,
+            'reporter': self.name,
+            'date': self.created_at
+        }
 
 class Notification(db.Model, SerializerMixin):
     __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    message = db.Column(db.String, nullable=False)
-    read = db.Column(db.Boolean)
-    created_at = db.Column(db.DateTime, default=func.now())
+    message = db.Column(db.String(), nullable=False)
+    read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime)
 
-    # # Relationship to User
-    # user = db.relationship('User', back_populates='notifications', cascade='all, delete')
+class Rating(db.Model, SerializerMixin):
+    __tablename__ = 'ratings'
+    serialize_rules = ('-report', '-user',)
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    report_id = db.Column(db.Integer, db.ForeignKey('incident_reports.id'), nullable=False)
+    rating_value = db.Column(db.Integer, nullable=False)  # Rating value (e.g., 1 to 5 stars)
+    created_at = db.Column(db.DateTime)
+
+    user = db.relationship('User', back_populates='ratings', cascade='all, delete')
+    report = db.relationship('Report', back_populates='ratings', cascade='all, delete')

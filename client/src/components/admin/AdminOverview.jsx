@@ -1,23 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Users, 
   AlertTriangle, 
   BarChart2, 
   CheckCircle,
-  Clock,
   XCircle,
   Activity
 } from 'lucide-react';
 
 export default function AdminOverview() {
+  const [users, setUsers] = useState([]);
+  const [incidents, setIncidents] = useState([]);
+  
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5555/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const fetchIncidents = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5555/incidents');
+      if (!response.ok) throw new Error('Failed to fetch incidents');
+      const data = await response.json();
+      setIncidents(data);
+    } catch (error) {
+      console.error('Error fetching incidents:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    // fetchIncidents();
+  }, []);
+
+  useEffect(() => {
+    fetchIncidents()
+  }, [])
+
   const stats = [
-    { label: 'Total Users', value: '1,234', icon: <Users />, color: 'bg-blue-500' },
-    { label: 'Total Incidents', value: '567', icon: <AlertTriangle />, color: 'bg-yellow-500' },
-    { label: 'Resolved', value: '342', icon: <CheckCircle />, color: 'bg-green-500' },
-    { label: 'Pending', value: '125', icon: <Clock />, color: 'bg-orange-500' },
-    { label: 'Investigating', value: '89', icon: <Activity />, color: 'bg-purple-500' },
-    { label: 'Rejected', value: '11', icon: <XCircle />, color: 'bg-red-500' },
+    { label: 'Total Users', value: users.length, icon: <Users />, color: 'bg-blue-500' },
+    { label: 'Total Incidents', value: incidents.length, icon: <AlertTriangle />, color: 'bg-yellow-500' },
+    { label: 'Resolved', value: incidents.filter(i => i.status === 'resolved').length, icon: <CheckCircle />, color: 'bg-green-500' },
+    { label: 'Investigating', value: incidents.filter(i => i.status === 'under investigation').length, icon: <Activity />, color: 'bg-purple-500' },
+    { label: 'Rejected', value: incidents.filter(i => i.status === 'rejected').length, icon: <XCircle />, color: 'bg-red-500' },
   ];
 
   return (
@@ -26,7 +58,7 @@ export default function AdminOverview() {
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <Link
           to="/admin/incidents"
-          className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors"
+          className="px-4 py-6 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors"
         >
           View All Incidents
         </Link>
@@ -55,11 +87,11 @@ export default function AdminOverview() {
             <BarChart2 className="w-6 h-6 text-gray-400" />
           </div>
           <div className="space-y-4">
-            {['Traffic Accident', 'Building Fire', 'Medical Emergency'].map((incident) => (
-              <div key={incident} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                <span>{incident}</span>
+            {incidents.slice(0, 3).map((incident) => (
+              <div key={incident.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                <span>{incident.description}</span>
                 <span className="px-3 py-1 bg-yellow-500 text-gray-900 rounded-full text-sm">
-                  Investigating
+                  {incident.status}
                 </span>
               </div>
             ))}
@@ -72,16 +104,16 @@ export default function AdminOverview() {
             <Users className="w-6 h-6 text-gray-400" />
           </div>
           <div className="space-y-4">
-            {['John Doe', 'Jane Smith', 'Mike Johnson'].map((user) => (
-              <div key={user} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg">
+            {users.slice(0, 3).map((user, index) => (
+              <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg">
                 <img
-                  src={`https://source.unsplash.com/random/100x100?portrait&${user}`}
-                  alt={user}
+                  src={`https://randomuser.me/api/portraits/${index % 2 === 0 ? 'men' : 'women'}/${index}.jpg`}
+                  alt={user.username}
                   className="w-10 h-10 rounded-full"
                 />
                 <div>
-                  <p className="font-medium">{user}</p>
-                  <p className="text-sm text-gray-400">Last active: 5 mins ago</p>
+                  <p className="font-medium">{user.username}</p>
+                  <p className="text-sm text-gray-400">{user.email}</p>
                 </div>
               </div>
             ))}

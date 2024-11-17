@@ -14,7 +14,6 @@ const loginValidationSchema = Yup.object({
 export default function Login() {
   const navigate = useNavigate();
   const value = useContext(AppContext)
-  // console.log(value.setUserData)
 
   const formik = useFormik({
     initialValues: {
@@ -35,9 +34,10 @@ export default function Login() {
         
         if (response.ok) {
           return response.json().then(data => {
-            localStorage.setItem('user_id', data.id)
+            localStorage.setItem('user_id', data.user_data.id)
             toast.success('Login successful!');
-            navigate('/user');
+            data.role === 'user' ? navigate('/user') : navigate('/admin/d')
+            // console.log(data)
           })
         } else {
           const errorMessage = await response.text();
