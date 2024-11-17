@@ -1,6 +1,7 @@
 from flask import Flask,make_response,request,jsonify,session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
+from flask_mail import Mail, Message
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
 from flask_cors import CORS
@@ -14,7 +15,7 @@ from flask_restful import Resource,Api, reqparse
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating, UserRoleEnum
+from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating,ContactMessage, UserRoleEnum
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
@@ -31,6 +32,15 @@ db.init_app(app)
 api=Api(app)
 # bcrypt=Bcrypt(app)
 
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'kipkiruidennis25@gmail.com'
+app.config['MAIL_PASSWORD'] = 'gzwp wywl ummf holw'
+app.config['MAIL_DEFAULT_SENDER'] = 'kipkiruidennis25@gmail.com'
+
+mail = Mail(app)
 
 # initializing JWTManager
 jwt = JWTManager(app)
@@ -512,9 +522,35 @@ class Login(Resource):
         access_token = create_access_token(identity=identity)
         response = jsonify(access_token=access_token)
         return response
-        
+   
+class Contact(Resource):
+    def post(self):
+        data = request.get_json()  
 
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
 
+        if not name or not email or not message:
+            return {'error': 'All fields are required!'}, 400
+
+        try:
+            new_message = ContactMessage(name=name, email=email, message=message)
+            db.session.add(new_message)
+            db.session.commit()
+
+            msg = Message(
+                subject=f"Contact Form Submission from {name}",
+                sender=email,  
+                recipients=['kipkiruidennis25@gmail.com'],  
+                body=f"Name: {name}\nEmail: {email}\nMessage:\n{message}"
+            )
+            mail.send(msg)
+
+            return {'message': 'Your message has been sent successfully!'}, 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return {'error': 'Failed to send your message. Please try again later.'}, 500
 
 
 api.add_resource(GetUser, '/user/<int:id>')
@@ -549,6 +585,8 @@ api.add_resource(RatingResource, '/ratings')
 # routes for admin analytics
 api.add_resource(Analytics, '/analytics')
 
+# route for contact
+api.add_resource(Contact, '/api/contact')
 
 # routes for notifications
 # api.add_resource(GetNotifications, '/notifications')
