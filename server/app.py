@@ -12,11 +12,11 @@ from flask_jwt_extended import create_access_token,JWTManager, create_refresh_to
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from flask_restful import Resource,Api
+from flask_restful import Resource,Api, reqparse
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl
+from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating, UserRoleEnum
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
@@ -162,6 +162,9 @@ class Signup(Resource):
         # Get JSON data from the request
         data = request.get_json()
 
+        if data.get('role') and data.get('role') not in ['user', 'admin']:
+            return make_response({"message": "role not found"}, 400)
+
         # Check if all necessary fields are provided
         if not all([data.get('username'), data.get('email'),data.get('phone'), data.get('password')]):
             return make_response(jsonify({"message": "Missing required fields"}), 400)
@@ -189,6 +192,7 @@ class Signup(Resource):
             email=data.get('email'),
             password=password,
             role=data.get('role', 'user'),
+            created_at = datetime.now()
         )
 
         try:
@@ -198,10 +202,6 @@ class Signup(Resource):
         except Exception as e:
             db.session.rollback()
             return make_response(jsonify({"message": "Error creating user", "error": str(e)}), 500)
-        
-
-
-
 
 # incident reports endpoint
     
@@ -224,6 +224,7 @@ class Incident(Resource):
             status = data.get('status'),
             latitude=data.get('latitude'),
             longitude=data.get('longitude'),
+            created_at = datetime.now()
         )
 
         db.session.add(new_incident)
@@ -242,8 +243,9 @@ class GetIncidentId(Resource):
 
         incident = Report.query.filter(Report.id==id).first()
         if incident:
-            incident_dict = incident.to_dict()
-            return incident_dict
+            # incident_dict = incident.to_dict()
+            return make_response(incident.to_dict(), 200)
+        return make_response({"message": "incident not found"}, 400)
     
 class UpdateIncident(Resource):
     
@@ -327,6 +329,38 @@ class MediaDelete(Resource):
         db.session.commit()
 
         return make_response('Media deleted!!')
+    
+class RatingResource(Resource):
+    def get(self):
+        ratings = Rating.query.all()
+        response = [rating.to_dict() for rating in ratings]
+        return {"message": response}
+        # return make_response(rating.to_dict())
+
+    def post(self):
+        # Define the post arguments parser
+        post_args = reqparse.RequestParser(bundle_errors=True)
+        post_args.add_argument('id', type=int, help='Error!! Add Rating id', required=True)
+        post_args.add_argument('rating_value', type=int, help='Error!! Add the Rating value', required=True)
+        post_args.add_argument('report_id', type=int, help='Error!! Add the Report Id associated with the Rating', required=True)
+        post_args.add_argument('user_id', type=int, help='Error!! Add the User Id associated with the Rating', required=True)
+
+        # Parse the arguments only within the context of a request
+        args = post_args.parse_args()
+
+        # Example of how you might use these values
+        rating = Rating(
+            id=args['id'],
+            rating_value=args['rating_value'],
+            report_id=args['report_id'],
+            user_id=args['user_id']
+        )
+
+        # Commit to the database (assuming you have the db session set up)
+        db.session.add(rating)
+        db.session.commit()
+
+        return {'message': 'Rating created successfully'}, 201
     
 class EmergencyPost(Resource):
     def get(self):
@@ -450,6 +484,9 @@ class Analytics(Resource):
 #             db.session.commit()
 #             return make_response('Action updated!!')
 
+
+  
+
 class Login(Resource):
     def post(self):
         data = request.get_json()
@@ -467,15 +504,17 @@ class Login(Resource):
         access_token = create_access_token(identity=user.id, additional_claims={"role": user.role})
         refresh_token = create_refresh_token(identity=user.id)
 
-        user1 = user.to_dict()
+        # user1 = user.to_dict()
 
-        return{
+
+        return make_response({
             "message": "Logged in",
-            "user_data": user1,
+            "user_data": user.to_dict(),
             "access_token": access_token,
             "refresh_token": refresh_token,
             "role": user.role
-        }
+        }, 200)
+    
     #  a method to refresh the token
     @jwt_required(refresh = True)
     def get(self):
@@ -542,12 +581,17 @@ api.add_resource(AdminIncidents, '/admin/reports')
 api.add_resource(UpdateIncidentStatus, '/incident/<int:id>/status')
 api.add_resource(PostAdminIncidents, '/admin/status')
 
+# route for rating
+api.add_resource(RatingResource, '/ratings')
+
 # routes for admin analytics
 api.add_resource(Analytics, '/analytics')
 
 
 # routes for notifications
 # api.add_resource(GetNotifications, '/notifications')
+
+print(UserRoleEnum('admin'))
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5555))

@@ -59,7 +59,7 @@ export default function IncidentReport() {
             latitude: values.latitude,
             longitude: values.longitude,
             user_id: localStorage.getItem('user_id'),
-            category: incidentCategory,
+            category: incidentCategory
           }),
         });
 
