@@ -12,6 +12,8 @@ flask-restful = "*"
 sqlalchemy-serializer = "*"
 flask = "*"
 sqlalchemy = "*"
+flask-jwt-extended = "*"
+flask-mail = "*"
 
 [dev-packages]
 
