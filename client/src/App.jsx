@@ -15,7 +15,7 @@ import Services from './components/Services';
 import About from './components/About';
 import Contact from './components/Contact';
 
-import AppSettings from './components/admin/AppSettings.jsx'
+import AppSettings from './components/admin/AppSettings.jsx';
 import AdminOverview from './components/admin/AdminOverview.jsx';
 import Analytics from './components/admin/Analytics.jsx'
 import UserData from './components/admin/UserData.jsx'

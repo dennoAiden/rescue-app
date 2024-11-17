@@ -1,63 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AlertTriangle, Clock, MapPin, Camera, MessageSquare, Star } from "lucide-react";
 import { StarRating } from "../StarRating.jsx";
 import { ReviewCard } from "../ReviewCard.jsx";
 import { ReviewForm } from "../ReviewForm.jsx";
 
-
 export default function IncidentDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedIncidentId, setSelectedIncidentId] = useState(null);
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      author: 'Fire Fighter',
-      content: 'Swift response and effective coordination at the scene.',
-      rating: 4,
-      date: '2024-03-10',
-      incidentId: 'INC-001'
-    },
-    {
-      id: 2,
-      author: 'Witness',
-      content: 'Excellent handling of the situation with swift response.',
-      rating: 5,
-      date: '2024-03-09',
-      incidentId: 'INC-001'
-    }
-  ]);
+  const [incidents, setIncidents] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [userId, setUserId] = useState(localStorage.getItem('user_id'));
 
-  const incidents = [
-    {
-      id: "INC-001",
-      title: "Traffic Accident on Highway",
-      status: "Under Investigation",
-      location: "Mombasa Road, Near Exit 7",
-      description: "Multiple vehicle collision reported...",
-      timestamp: "2024-02-28 14:30",
-      images: ["https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=800&auto=format&fit=crop"]
-    },
-    {
-      id: "INC-002",
-      title: "Building Fire Emergency",
-      status: "Resolved",
-      location: "Central Business District",
-      description: "Commercial building fire incident...",
-      timestamp: "2024-02-28 12:15",
-      images: ["https://images.unsplash.com/photo-1599587897943-467f82141a45?w=800&auto=format&fit=crop"]
-    }
-  ];
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5555/user/${userId}`)
+      .then(response => response.json())
+      .then((data) => { 
+        console.log(data)
+        setIncidents(data.incident_reports)
+
+        })          
+      .catch(error => console.error('Error fetching incidents:', error));
+
+    fetch('http://127.0.0.1:5555/ratings')
+      .then(response => response.json())
+      .then(data => {
+        setReviews(data.message)})
+      .catch(error => console.error('Error fetching reviews:', error));
+  }, [userId]);
+
 
   const handleSubmitReview = (reviewData) => {
     if (!selectedIncidentId) return;
-    
+
+    // Check if user already reviewed this incident
+    const existingReview = reviews.find(
+      (review) => review.incidentId === selectedIncidentId && review.userId === userId
+    );
+    if (existingReview) {
+      alert("You have already rated this incident.");
+      return;
+    }
+
     const newReview = {
       id: reviews.length + 1,
-      author: 'Anonymous User',
+      author: reviewData.user_id.username,
       content: reviewData.content,
       rating: reviewData.rating,
       date: new Date().toISOString().split('T')[0],
-      incidentId: selectedIncidentId
+      incidentId: selectedIncidentId,
+      userId: userId // Store userId with review
     };
     setReviews([newReview, ...reviews]);
     setShowReviewForm(false);
@@ -108,11 +99,23 @@ export default function IncidentDetails() {
                   </div>
 
                   <div>
+                  {incident.images.length > 0 && (
                     <img 
-                      src={incident.images[0]} 
-                      alt={incident.title}
+                      src={incident.images[0].media_image} 
+                      alt="incident image"
                       className="w-full h-48 object-cover rounded-lg"
                     />
+                  )}
+                  </div>
+                  <div>
+                    {incident.video && incident.video.length > 0 && (
+                      <video 
+                        src={incident.video[0]?.media_video} 
+                        controls 
+                        className="w-full h-48 rounded-lg"
+                      />
+                      
+                  )}
                   </div>
                 </div>
 
