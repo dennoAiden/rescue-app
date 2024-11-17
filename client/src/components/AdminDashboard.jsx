@@ -1,127 +1,125 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Users, AlertTriangle, CheckCircle, Menu, MapPin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  Users, 
+  AlertTriangle, 
+  BarChart2, 
+  CheckCircle,
+  XCircle,
+  Activity
+} from 'lucide-react';
 
-// Sidebar item and content definition
-const stats = [
-  { label: 'Total Incidents', value: '156', icon: AlertTriangle, color: 'text-yellow-500' },
-  { label: 'Resolved', value: '89', icon: CheckCircle, color: 'text-green-500' },
-  { label: 'Active Users', value: '2,345', icon: Users, color: 'text-blue-500' },
-  { label: 'Monthly Reports', value: '45', icon: BarChart, color: 'text-purple-500' },
-];
-
-const AdminDashboard = () => {
-  const [selectedStat, setSelectedStat] = useState(stats[0]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [incidentReports, setIncidentReports] = useState([]);
-  const [selectedIncident, setSelectedIncident] = useState(null);
-
-  // Fetch incidents from the backend using fetch
-  useEffect(() => {
-    fetch('/api/incidents')
-      .then(response => response.json())
-      .then(data => setIncidentReports(data))
-      .catch(error => console.error('Error fetching incident reports:', error));
-  }, []);
-
-  // Handle status change of an incident
-  const handleStatusChange = (incidentId, newStatus) => {
-    fetch(`/api/incidents/${incidentId}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status: newStatus }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Update the local incidentReports state after status update
-        setIncidentReports(incidentReports.map(incident =>
-          incident.id === incidentId ? { ...incident, status: newStatus } : incident
-        ));
-        alert(`Incident status changed to: ${newStatus}`);
-      })
-      .catch(error => console.error('Error updating incident status:', error));
+export default function AdminOverview() {
+  const [users, setUsers] = useState([]);
+  const [incidents, setIncidents] = useState([]);
+  
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5555/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
+  const fetchIncidents = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5555/incidents');
+      if (!response.ok) throw new Error('Failed to fetch incidents');
+      const data = await response.json();
+      setIncidents(data);
+    } catch (error) {
+      console.error('Error fetching incidents:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    // fetchIncidents();
+  }, []);
+
+  useEffect(() => {
+    fetchIncidents()
+  }, [])
+
+  const stats = [
+    { label: 'Total Users', value: users.length, icon: <Users />, color: 'bg-blue-500' },
+    { label: 'Total Incidents', value: incidents.length, icon: <AlertTriangle />, color: 'bg-yellow-500' },
+    { label: 'Resolved', value: incidents.filter(i => i.status === 'resolved').length, icon: <CheckCircle />, color: 'bg-green-500' },
+    { label: 'Investigating', value: incidents.filter(i => i.status === 'under investigation').length, icon: <Activity />, color: 'bg-purple-500' },
+    { label: 'Rejected', value: incidents.filter(i => i.status === 'rejected').length, icon: <XCircle />, color: 'bg-red-500' },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
-
-      {/* Main Content Area */}
-      <main
-        className={`flex-1 p-8 space-y-6 sm:p-12 ${
-          sidebarOpen ? 'ml-64' : ''
-        } mt-12 sm:mt-0`} // Add margin-top for mobile when the hamburger menu is visible
-      >
-        <h1
-          className={`text-2xl sm:text-3xl font-semibold ${
-            sidebarOpen ? 'ml-64' : ''
-          }`}
+    <div className="space-y-6 text-white">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <Link
+          to="/admin/incidents"
+          className="px-4 py-6 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors"
         >
-          {selectedStat.label}
-        </h1>
+          View All Incidents
+        </Link>
+      </div>
 
-        {/* Incident Reports List */}
-        <div className="space-y-4 mt-8">
-          {incidentReports.map(incident => (
-            <div key={incident.id} className="bg-gray-800 p-4 rounded-lg">
-              <h2 className="font-semibold text-lg">{incident.title}</h2>
-              <p>{incident.description}</p>
-              <div className="mt-2">
-                <MapPin className="inline-block mr-2" />
-                <span>{incident.location}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-gray-800 p-6 rounded-lg">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-lg ${stat.color}`}>
+                {stat.icon}
               </div>
-
-              {/* Status Management */}
-              <div className="mt-4">
-                <button
-                  onClick={() => handleStatusChange(incident.id, 'under investigation')}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2"
-                >
-                  Under Investigation
-                </button>
-                <button
-                  onClick={() => handleStatusChange(incident.id, 'resolved')}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg mr-2"
-                >
-                  Resolved
-                </button>
-                <button
-                  onClick={() => handleStatusChange(incident.id, 'rejected')}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
-                >
-                  Rejected
-                </button>
-              </div>
-
-              {/* Media Display */}
-              <div className="mt-4">
-                {incident.media && incident.media.images && (
-                  <div>
-                    <h3>Images:</h3>
-                    <div className="flex space-x-2">
-                      {incident.media.images.map((image, index) => (
-                        <img key={index} src={image} alt="Incident" className="w-24 h-24 object-cover rounded-lg" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {incident.media && incident.media.videos && (
-                  <div className="mt-2">
-                    <h3>Videos:</h3>
-                    {incident.media.videos.map((video, index) => (
-                      <video key={index} controls className="w-full max-w-xs mt-2">
-                        <source src={video} type="video/mp4" />
-                      </video>
-                    ))}
-                  </div>
-                )}
+              <div>
+                <p className="text-gray-400">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-gray-800 p-6 rounded-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Recent Incidents</h2>
+            <BarChart2 className="w-6 h-6 text-gray-400" />
+          </div>
+          <div className="space-y-4">
+            {incidents.slice(0, 3).map((incident) => (
+              <div key={incident.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                <span>{incident.description}</span>
+                <span className="px-3 py-1 bg-yellow-500 text-gray-900 rounded-full text-sm">
+                  {incident.status}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+
+        <div className="bg-gray-800 p-6 rounded-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Active Users</h2>
+            <Users className="w-6 h-6 text-gray-400" />
+          </div>
+          <div className="space-y-4">
+            {users.slice(0, 3).map((user, index) => (
+              <div key={user.id} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg">
+                <img
+                  src={`https://randomuser.me/api/portraits/${index % 2 === 0 ? 'men' : 'women'}/${index}.jpg`}
+                  alt={user.username}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div>
+                  <p className="font-medium">{user.username}</p>
+                  <p className="text-sm text-gray-400">{user.email}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default AdminDashboard;
+}

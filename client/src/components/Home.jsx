@@ -11,8 +11,6 @@ export default function LandingPage() {
   return (
     <div className="home">
       <Navbar />
-
-      {/* Home section */}
       <div
         className="relative min-h-screen flex items-center justify-center overflow-hidden text-white"
         style={{ paddingTop: '80px' }} 

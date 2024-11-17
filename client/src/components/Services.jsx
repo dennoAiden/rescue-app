@@ -1,60 +1,91 @@
 import React from 'react';
-import { Bell, Shield, Clock, BarChart2, Users, Phone } from 'lucide-react';
+import { AlertTriangle, Bell, Clock, Shield, LineChart, Users, FileSearch, Zap, Phone } from 'lucide-react';
+import Navbar from './Navbar';
 
-export default function ServicesPage() {
-  const services = [
-    {
-      icon: <Bell className="h-8 w-8 text-red-500" />,
-      title: "Incident Reporting",
-      description: "Quick and easy reporting system for various types of incidents"
-    },
-    {
-      icon: <Clock className="h-8 w-8 text-red-500" />,
-      title: "24/7 Monitoring",
-      description: "Round-the-clock monitoring and response coordination"
-    },
-    {
-      icon: <BarChart2 className="h-8 w-8 text-red-500" />,
-      title: "Analytics Dashboard",
-      description: "Comprehensive analytics and reporting tools"
-    },
-    {
-      icon: <Users className="h-8 w-8 text-red-500" />,
-      title: "Community Alerts",
-      description: "Real-time community notifications and updates"
-    },
-    {
-      icon: <Shield className="h-8 w-8 text-red-500" />,
-      title: "Emergency Response",
-      description: "Coordinated emergency response system"
-    },
-    {
-      icon: <Phone className="h-8 w-8 text-red-500" />,
-      title: "Support Services",
-      description: "24/7 customer support and assistance"
-    }
-  ];
+const services = [
+  {
+    icon: <AlertTriangle className="h-8 w-8 text-purple-500" />,
+    title: "Incident Detection",
+    description: "Advanced detection systems to identify and classify incidents in real-time."
+  },
+  {
+    icon: <Bell className="h-8 w-8 text-purple-500" />,
+    title: "Alert Management",
+    description: "Customizable alert systems with intelligent notification routing and escalation."
+  },
+  {
+    icon: <Clock className="h-8 w-8 text-purple-500" />,
+    title: "Response Timeline",
+    description: "Detailed incident timelines with response tracking and documentation."
+  },
+  {
+    icon: <Shield className="h-8 w-8 text-purple-500" />,
+    title: "Security Protocols",
+    description: "Predefined security protocols and response procedures for various incident types."
+  },
+  {
+    icon: <LineChart className="h-8 w-8 text-purple-500" />,
+    title: "Analytics Dashboard",
+    description: "Comprehensive analytics for incident patterns, response times, and resolution rates."
+  },
+  {
+    icon: <Users className="h-8 w-8 text-purple-500" />,
+    title: "Team Coordination",
+    description: "Streamlined team collaboration tools for effective incident response."
+  },
+  {
+    icon: <FileSearch className="h-8 w-8 text-purple-500" />,
+    title: "Incident Reports",
+    description: "Detailed reporting system with customizable templates and analysis tools."
+  },
+  {
+    icon: <Zap className="h-8 w-8 text-purple-500" />,
+    title: "Quick Response",
+    description: "Automated response workflows for faster incident resolution."
+  },
+  {
+    icon: <Phone className="h-8 w-8 text-purple-500" />,
+    title: "24/7 Support",
+    description: "Round-the-clock incident response support and guidance."
+  }
+];
 
+const Services = () => {
   return (
-    <div className="pt-16 min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Services</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Comprehensive incident reporting and management solutions for a safer community
-          </p>
-        </div>
+    <>
+      <Navbar />
+      {/* <section id="services" className="mt-16 py-20 px-4"> Changed pt-20 to mt-16 */}
+      <section id="services" className="pt-24 py-20 px-4">
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <div key={index} className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition">
-              <div className="mb-4">{service.icon}</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{service.title}</h3>
-              <p className="text-gray-600">{service.description}</p>
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 pt-8"> {/* Added pt-8 for extra spacing */}
+            <h2 className="text-4xl font-bold mb-4 pt-24 py-20 px-4">Our Services</h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Comprehensive incident management solutions designed to protect your organization
+              and ensure rapid response to any situation.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <div 
+                key={index} 
+                className="p-6 rounded-xl bg-gray-800/50 hover:bg-gray-800 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="p-3 bg-purple-500/10 rounded-lg w-fit">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl font-semibold mt-4">{service.title}</h3>
+                <p className="mt-2 text-gray-400">{service.description}</p>
+                <button className="mt-4 text-purple-400 hover:text-purple-300 flex items-center gap-2 transition-colors duration-200">
+                  Learn more <Zap className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
-}
+};
+
+export default Services;

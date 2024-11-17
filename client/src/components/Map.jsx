@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
-const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
+const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
 
 function Map({ center, markers = [], zoom = 12, onLocationSelect }) {
   const mapStyles = {
@@ -15,7 +15,6 @@ function Map({ center, markers = [], zoom = 12, onLocationSelect }) {
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
 
-        // Reverse geocoding to get address
         const geocoder = new google.maps.Geocoder();
         geocoder.geocode(
           { location: { lat, lng } },
