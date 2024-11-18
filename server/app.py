@@ -542,7 +542,7 @@ class Contact(Resource):
             msg = Message(
                 subject=f"Contact Form Submission from {name}",
                 sender=email,  
-                recipients=['kipkiruidennis25@gmail.com'],  
+                recipients=['isackuria@gmail.com'],  
                 body=f"Name: {name}\nEmail: {email}\nMessage:\n{message}"
             )
             mail.send(msg)

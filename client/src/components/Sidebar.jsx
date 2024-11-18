@@ -18,7 +18,6 @@ export default function Sidebar({ isAdmin = false }) {
   const navItems = isAdmin ? [
     { icon: Home, label: 'Dashboard', path: '/admin/d' },
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
-    { icon: User, label: 'User Submissions', path: '/admin/user' },
     {icon: User, label: 'User Management', path: '/admin/usermanagement'},
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
