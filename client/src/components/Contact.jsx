@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import Navbar from './Navbar';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -42,17 +43,18 @@ export default function ContactPage() {
 
   return (
     <>
+    <Navbar />
       <div className="pt-16 min-h-screen bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-100 mb-4">Contact Us</h1>
+            <h1 className="text-4xl font-bold text-gray-100 mb-4">Tell us what you think !</h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               We're here to help. Reach out to us for any questions or concerns.
+              Your voice matters! We would love to hear from you.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Contact Form */}
             <div className="bg-gray-900 p-8 rounded-xl shadow-lg">
               <h2 className="text-2xl font-semibold mb-6 text-gray-100">Send us a message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -78,7 +80,7 @@ export default function ContactPage() {
                   <label
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-100 mb-1"
-                  >
+                  > 
                     Email
                   </label>
                   <input
@@ -91,6 +93,7 @@ export default function ContactPage() {
                     placeholder="your@email.com"
                     required
                   />
+                  <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                 </div>
                 <div>
                   <label
@@ -112,7 +115,7 @@ export default function ContactPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-red-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300 shadow-sm"
+                  className="w-full bg-white/10 text-yellow-500 font-semibold px-6 py-3 rounded-lg hover:bg-yellow-500 hover:text-white transition duration-300 shadow-sm"
                 >
                   Send Message
                 </button>
@@ -124,27 +127,26 @@ export default function ContactPage() {
               )}
             </div>
 
-            {/* Contact Information */}
             <div className="space-y-8">
               <div className="bg-gray-900 p-8 rounded-xl shadow-lg">
                 <h2 className="text-2xl font-semibold mb-6 text-gray-100">Contact Information</h2>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <Phone className="h-6 w-6 text-red-500" />
+                    <Phone className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Phone</p>
                       <p className="text-gray-400">+1 (555) 123-4567</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <Mail className="h-6 w-6 text-red-500" />
+                    <Mail className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Email</p>
                       <p className="text-gray-400">support@ajali.com</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <MapPin className="h-6 w-6 text-red-500" />
+                    <MapPin className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Address</p>
                       <p className="text-gray-400">
@@ -153,7 +155,7 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <Clock className="h-6 w-6 text-red-500" />
+                    <Clock className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Hours</p>
                       <p className="text-gray-400">24/7 Emergency Response</p>
@@ -168,7 +170,7 @@ export default function ContactPage() {
                 <p className="text-gray-400 mb-4">
                   For immediate emergency assistance, please call:
                 </p>
-                <div className="text-2xl font-bold text-red-500">999 or 112</div>
+                <div className="text-2xl font-bold text-yellow-500">999 or 112</div>
               </div>
             </div>
           </div>

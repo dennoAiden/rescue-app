@@ -30,7 +30,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <AlertTriangle className={`h-8 w-8 ${isScrolled ? 'text-yellow-500' : 'text-white'}`} />
             <span className={`ml-2 text-xl font-bold ${isScrolled ? 'text-gray-900' : 'text-white'}`}>
-              MyRescue
+              RescueApp!
             </span>
           </div>
           
@@ -57,6 +57,14 @@ export default function Navbar() {
                 className={`${isScrolled ? 'text-gray-700 hover:text-[#5D4E8C]' : 'text-white hover:text-teal-400'} transition-colors`}
               >
                 About
+              </button>
+            </Link>
+            <Link to='/contact'>
+              <button 
+                onClick={() => scrollToSection('contact')}
+                className={`${isScrolled ? 'text-gray-700 hover:text-[#5D4E8C]' : 'text-white hover:text-teal-400'} transition-colors`}
+              >
+                Contact Us
               </button>
             </Link>
             <Link to='/login'>
