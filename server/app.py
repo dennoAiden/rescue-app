@@ -552,7 +552,7 @@ class Contact(Resource):
             )
             mail.send(msg)
 
-            return {'message': 'Your message has been sent successfully!'}, 200
+            return {'message': 'Your message has been sent successfully!'}, 201
         except Exception as e:
             print(f"Error: {e}")
             return {'error': 'Failed to send your message. Please try again later.'}, 500
@@ -577,7 +577,7 @@ api.add_resource(EmergencyPost, '/emergency-reporting')
 # routes for media
 api.add_resource(MediaPost, '/media')
 api.add_resource(MediaDelete, '/media/<int:id>')
-api.add_resource(MediaUpload, '/upload')
+
 
 # routes for admin actions
 api.add_resource(AdminIncidents, '/admin/reports')
@@ -592,7 +592,7 @@ api.add_resource(RatingResource, '/ratings')
 api.add_resource(Analytics, '/analytics')
 
 # route for contact
-api.add_resource(Contact, '/api/contact')
+api.add_resource(Contact, '/contact')
 
 # routes for notifications
 # api.add_resource(GetNotifications, '/notifications')
