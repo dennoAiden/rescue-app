@@ -11,7 +11,8 @@ import {
   FileText,
   Home,
   User, 
-  Info
+  Info,
+  Mail
 } from 'lucide-react';
 
 export default function Sidebar({ isAdmin = false }) {
@@ -21,6 +22,7 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
     {icon: User, label: 'User Management', path: '/admin/usermanagement'},
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
+    { icon: Mail, label: 'Contact Messages', path: '/admin/contact' },
     { icon: Map, label: 'Incidents Map', path: '/map/admin' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
   ] : [

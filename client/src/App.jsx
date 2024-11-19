@@ -22,6 +22,7 @@ import ReportedIncidents from './components/admin/ReportedIncident.jsx'
 import IncidentMapAdmin from './components/admin/IncidentMapAdmin';
 import AboutUs from "./components/AboutUs.jsx";
 import Services from './components/Services.jsx';
+import ContactMessages from './components/admin/ContactMessages.jsx';
 
 
 
@@ -58,6 +59,7 @@ function App() {
           <Route path="admin/analytics" element={<Analytics />} />
           <Route path="admin/usermanagement" element={<UserData />} />
           <Route path="admin/incidents" element={<ReportedIncidents />} />
+          <Route path="admin/contact" element={<ContactMessages />} />
           <Route path="admin/settings" element={<AppSettings />} />
         </Route>
       </Routes>
