@@ -21,6 +21,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
+
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
