@@ -3,6 +3,7 @@ import { AlertTriangle, Clock, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import videoBg from "../videos/response1.mp4";
 import EmergencyReporting from "./EmergencyReporting";
+import Navbar from "./Navbar";
 
 export default function LandingPage() {
   const [showEmergencyReport, setShowEmergencyReport] = useState(false);
@@ -34,6 +35,7 @@ export default function LandingPage() {
 
   return (
     <div className="home">
+      <Navbar/>
       <div
         className="relative min-h-screen flex items-center justify-center overflow-hidden text-white"
         style={{ paddingTop: "80px" }}

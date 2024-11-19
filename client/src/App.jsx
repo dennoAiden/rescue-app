@@ -19,6 +19,7 @@ import Analytics from './components/admin/Analytics.jsx'
 import UserData from './components/admin/UserData.jsx'
 import ReportedIncidents from './components/admin/ReportedIncident.jsx'
 import AboutUs from "./components/AboutUs.jsx";
+import Services from './components/Services.jsx';
 
 
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="/settings" element={<UserSettings />} />
 
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/services" element={<Services />} />
 
 
         </Route>
