@@ -531,8 +531,7 @@ class Login(Resource):
    
 class Contact(Resource):
     def post(self):
-        data = request.get_json()  
-
+        data = request.get_json()
         name = data.get('name')
         email = data.get('email')
         message = data.get('message')
@@ -541,14 +540,16 @@ class Contact(Resource):
             return {'error': 'All fields are required!'}, 400
 
         try:
+            # Store message in the database
             new_message = ContactMessage(name=name, email=email, message=message)
             db.session.add(new_message)
             db.session.commit()
 
+            # Send the email
             msg = Message(
                 subject=f"Contact Form Submission from {name}",
-                sender=email,  
-                recipients=['isackuria@gmail.com'],  
+                sender=email,
+                recipients=['isackuria@gmail.com'],
                 body=f"Name: {name}\nEmail: {email}\nMessage:\n{message}"
             )
             mail.send(msg)
@@ -558,6 +559,23 @@ class Contact(Resource):
             print(f"Error: {e}")
             return {'error': 'Failed to send your message. Please try again later.'}, 500
 
+    def get(self):
+        try:
+            # Retrieve messages from the database
+            messages = ContactMessage.query.all()
+            return [
+                {
+                    'id': message.id,
+                    'name': message.name,
+                    'email': message.email,
+                    'message': message.message,
+                    # 'timestamp': message.timestamp.isoformat()
+                }
+                for message in messages
+            ], 200
+        except Exception as e:
+            print(f"Error: {e}")
+            return {'error': 'Failed to fetch messages. Please try again later.'}, 500
 
 api.add_resource(GetUser, '/user/<int:id>')
 api.add_resource(Users, '/users')
