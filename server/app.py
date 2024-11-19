@@ -5,6 +5,8 @@ from flask_mail import Mail, Message
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
 from flask_cors import CORS
+import cloudinary
+import cloudinary.uploader
 import os
 
 from flask_jwt_extended import create_access_token,JWTManager, create_refresh_token, jwt_required, get_jwt_identity, current_user, verify_jwt_in_request, get_jwt
@@ -22,6 +24,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
+
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
@@ -31,6 +34,7 @@ migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
 # bcrypt=Bcrypt(app)
+
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -79,6 +83,7 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
+
 
 
 class Users(Resource):
@@ -572,6 +577,7 @@ api.add_resource(EmergencyPost, '/emergency-reporting')
 # routes for media
 api.add_resource(MediaPost, '/media')
 api.add_resource(MediaDelete, '/media/<int:id>')
+api.add_resource(MediaUpload, '/upload')
 
 # routes for admin actions
 api.add_resource(AdminIncidents, '/admin/reports')
