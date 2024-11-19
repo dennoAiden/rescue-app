@@ -105,7 +105,7 @@ export default function AboutUs() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <img 
-                src="https://images.unsplash.com/photo-1562105304-3d606f974751?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+                src="https://images.pexels.com/photos/7709296/pexels-photo-7709296.jpeg?auto=compress&cs=tinysrgb&w=600"
                 alt="Team at work"
                 className="rounded-xl shadow-lg w-full h-64 object-cover"
               />
