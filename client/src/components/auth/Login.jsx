@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useFormik } from 'formik';
@@ -14,7 +15,7 @@ const loginValidationSchema = Yup.object({
 export default function Login() {
   const navigate = useNavigate();
   const value = useContext(AppContext)
-  const [showPassword, setShowPassword] = useState
+  const [showPassword, setShowPassword] = useState(false)
 
   const formik = useFormik({
     initialValues: {
