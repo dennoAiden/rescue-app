@@ -37,7 +37,6 @@ export default function Login() {
             localStorage.setItem('user_id', data.user_data.id)
             toast.success('Login successful!');
             data.role === 'user' ? navigate('/user') : navigate('/admin/d')
-            // console.log(data)
           })
         } else {
           const errorMessage = await response.text();
@@ -55,7 +54,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <AlertTriangle className="w-10 h-10 text-yellow-500" />
-            <h1 className="text-2xl font-bold">Zusha! Platform</h1>
+            <h1 className="text-2xl font-bold">RescueApp! Platform</h1>
           </div>
           <p className="text-gray-400">Sign in to your account to report incidents</p>
         </div>

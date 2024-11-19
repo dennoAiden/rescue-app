@@ -1,6 +1,7 @@
 from flask import Flask,make_response,request,jsonify,session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
+from flask_mail import Mail, Message
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
 from flask_cors import CORS
@@ -16,13 +17,14 @@ from flask_restful import Resource,Api, reqparse
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating, UserRoleEnum
+from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating,ContactMessage, UserRoleEnum
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
+
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
@@ -33,13 +35,16 @@ db.init_app(app)
 api=Api(app)
 # bcrypt=Bcrypt(app)
 
-# Cloudinary configuration
-cloudinary.config(
-    cloud_name="dyc1darzf",
-    api_key="483633628986175",
-    api_secret="zbZ4TzmyJEoHiLytJFW4QxePSOI"
-)
 
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'kipkiruidennis25@gmail.com'
+app.config['MAIL_PASSWORD'] = 'gzwp wywl ummf holw'
+app.config['MAIL_DEFAULT_SENDER'] = 'kipkiruidennis25@gmail.com'
+
+mail = Mail(app)
 
 # initializing JWTManager
 jwt = JWTManager(app)
@@ -522,36 +527,35 @@ class Login(Resource):
         access_token = create_access_token(identity=identity)
         response = jsonify(access_token=access_token)
         return response
-    
-class MediaUpload(Resource):
+   
+class Contact(Resource):
     def post(self):
-        if 'file' not in request.files:
-            return {"error": "No file part in the request"}, 400
+        data = request.get_json()  
 
-        file = request.files['file']
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
 
-        if file.filename == '':
-            return {"error": "No file selected"}, 400
-
-        # Validate the file type
-        allowed_extensions = {'image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/mpeg', 'video/quicktime'}
-        if file.content_type not in allowed_extensions:
-            return {"error": "Invalid file type. Only images and videos are allowed."}, 400
+        if not name or not email or not message:
+            return {'error': 'All fields are required!'}, 400
 
         try:
-            # Upload the file to Cloudinary
-            result = cloudinary.uploader.upload(file, resource_type="auto")
-            return {
-                "message": "File uploaded successfully",
-                "url": result['secure_url'],
-                "public_id": result['public_id'],
-                "media_type": result.get('resource_type', 'unknown')
-            }, 200
+            new_message = ContactMessage(name=name, email=email, message=message)
+            db.session.add(new_message)
+            db.session.commit()
+
+            msg = Message(
+                subject=f"Contact Form Submission from {name}",
+                sender=email,  
+                recipients=['isackuria@gmail.com'],  
+                body=f"Name: {name}\nEmail: {email}\nMessage:\n{message}"
+            )
+            mail.send(msg)
+
+            return {'message': 'Your message has been sent successfully!'}, 200
         except Exception as e:
-            return {"error": str(e)}, 500
-        
-
-
+            print(f"Error: {e}")
+            return {'error': 'Failed to send your message. Please try again later.'}, 500
 
 
 api.add_resource(GetUser, '/user/<int:id>')
@@ -587,6 +591,8 @@ api.add_resource(RatingResource, '/ratings')
 # routes for admin analytics
 api.add_resource(Analytics, '/analytics')
 
+# route for contact
+api.add_resource(Contact, '/api/contact')
 
 # routes for notifications
 # api.add_resource(GetNotifications, '/notifications')
