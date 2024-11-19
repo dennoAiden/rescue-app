@@ -381,7 +381,8 @@ class EmergencyPost(Resource):
             status = data.get('status'),
             latitude=data.get('latitude'),
             longitude=data.get('longitude'),
-            phone=data.get('phone')
+            phone=data.get('phone'),
+            created_at = datetime.now()
         ) 
         db.session.add(emergency_report)
         db.session.commit()
