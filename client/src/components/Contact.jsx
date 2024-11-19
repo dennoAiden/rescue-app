@@ -1,8 +1,8 @@
-import React from 'react';
 import { Mail, Phone, MapPin, Clock, User, MessageSquare } from 'lucide-react';
 import Navbar from './Navbar';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function ContactPage() {
   const formik = useFormik({
@@ -27,13 +27,13 @@ export default function ContactPage() {
         });
 
         if (response.ok) {
-          alert('Your message has been sent successfully!');
+          toast.success('Your message has been sent successfully!');
           resetForm();
         } else {
           throw new Error('Failed to send message.');
         }
       } catch (error) {
-        alert(`Error: ${error.message}`);
+        toast.error(`Error: ${error.message}`);
       }
     },
   });
@@ -41,6 +41,7 @@ export default function ContactPage() {
   return (
     <>
       <Navbar />
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="pt-16 min-h-screen bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
@@ -131,21 +132,21 @@ export default function ContactPage() {
                     <Phone className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Phone</p>
-                      <p className="text-gray-400">+1 (555) 123-4567</p>
+                      <p className="text-gray-400">+254 71234568 </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Mail className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Email</p>
-                      <p className="text-gray-400">support@ajali.com</p>
+                      <p className="text-gray-400">noreply@rescueapp.com</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <MapPin className="h-6 w-6 text-yellow-500" />
                     <div>
                       <p className="font-medium text-gray-100">Address</p>
-                      <p className="text-gray-400">123 Safety Street, Security City, SC 12345</p>
+                      <p className="text-gray-400">123 Kanairo, Security City, SC 12345</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
