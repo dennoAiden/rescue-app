@@ -97,14 +97,14 @@ export default function Navbar() {
             </Link>
             {!isHome && (
               <Link to="/login">
-                <button className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-[#4A3D70] transition-colors">
+                <button className="bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-gray-900 transition-colors">
                   Get Access
                 </button>
               </Link>
             )}
           </div>
 
-          {/* Mobile Hamburger */}
+
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -115,7 +115,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         <div
           className={`md:hidden transition-all duration-300 ease-in-out ${
             isOpen ? 'block' : 'hidden'
@@ -144,7 +143,7 @@ export default function Navbar() {
             </Link>
             {!isHome && (
               <Link to="/login" onClick={() => setIsOpen(false)}>
-                <span className="block w-full px-4 py-2 bg-[#5D4E8C] text-white rounded-md hover:bg-[#4A3D70] transition-colors">
+                <span className="block w-32 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-[#4A3D70] transition-colors">
                   Get Access
                 </span>
               </Link>

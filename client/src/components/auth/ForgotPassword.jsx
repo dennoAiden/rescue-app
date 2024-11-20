@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate()
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -26,8 +30,18 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleBackToHome = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 p-6">
+        <button
+            onClick={handleBackToHome}
+            className="absolute top-4 left-4 text-yellow-500 hover:text-yellow-400 focus:outline-none"
+          >
+            <ArrowLeft className="w-6 h-6" />
+        </button>
       <div className="max-w-md w-full text-white">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold">Forgot Password</h1>

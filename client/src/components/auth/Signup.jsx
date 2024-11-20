@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
+import { AlertTriangle, UserPlus, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
@@ -60,8 +60,18 @@ export default function Signup() {
     },
   });
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-900">
+        <button
+            onClick={handleBackToHome}
+            className="absolute top-4 left-4 text-yellow-500 hover:text-yellow-400 focus:outline-none"
+          >
+            <ArrowLeft className="w-6 h-6" />
+        </button>
       <div className="flex-1">
         <img
           src={signup}
