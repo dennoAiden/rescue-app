@@ -9,21 +9,21 @@ const NewsUpdates = () => {
     const fetchNews = async () => {
       try {
         const response = await fetch(
-          `https://newsapi.org/v2/everything?q=incident OR emergency OR safety&sortBy=publishedAt&apiKey=9f1e962146a842f18fd3bf07762f235e`
+          `https://newsdata.io/api/1/news?apikey=pub_598959ac526e7cc1502500f3c44b17111d63b&q=emergencies `
         );
         const data = await response.json();
-        const formattedNews = data.articles.map((article, index) => ({
+        const formattedNews = data.results.map((article, index) => ({
           id: index,
           title: article.title,
           content: article.description,
-          date: new Date(article.publishedAt).toLocaleDateString(),
-          image: article.urlToImage,
-          category: "Incident",
-          readTime: "5 min", 
+          date: new Date(article.pubDate).toLocaleDateString(),
+          image: article.image_url || "https://via.placeholder.com/300",
+          category: article.category ? article.category[0] : "General",
+          readTime: "5 min",
           views: Math.floor(Math.random() * 1000),
           comments: Math.floor(Math.random() * 50),
           shares: Math.floor(Math.random() * 30),
-          priority: "medium"
+          priority: "medium",
         }));
         setNews(formattedNews);
       } catch (error) {
