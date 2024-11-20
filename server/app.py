@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
+from sqlalchemy.orm import joinedload
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
 from flask_cors import CORS
@@ -110,7 +111,10 @@ class Users(Resource):
 
 class GetUser(Resource):
     def get(self, id):
-        user = User.query.filter(User.id == id).first()
+        user = db.session.query(User).options(
+            joinedload(User.incident_reports).joinedload(Report.images),
+            joinedload(User.incident_reports).joinedload(Report.videos)
+        ).filter(User.id == id).first()
         if user:
             return make_response(user.to_dict(), 200)
         else:
