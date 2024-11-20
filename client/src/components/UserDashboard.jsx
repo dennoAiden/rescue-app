@@ -97,7 +97,6 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Recent Alerts Section */}
         <div className="bg-gray-800 rounded-lg p-6">
           <h2 className="text-xl font-bold mb-4 text-white">Recent Alerts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
