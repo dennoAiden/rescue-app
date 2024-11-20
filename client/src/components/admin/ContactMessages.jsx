@@ -19,7 +19,7 @@ const ContactMessages = () => {
                     throw new Error("Invalid data format");
                 }
             } catch (err) {
-                console.error(err); // Log the error for debugging
+                console.error(err);
                 setError(err instanceof Error ? err.message : String(err));
             } finally {
                 setLoading(false);

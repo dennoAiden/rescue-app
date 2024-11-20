@@ -12,15 +12,16 @@ import {
 
 export default function Sidebar({ isAdmin = false }) {
   const navigate = useNavigate();
+  const userId = localStorage.getItem("user_id")
   const navItems = isAdmin ? [
-    { icon: Home, label: 'Dashboard', path: '/admin/d' },
+    { icon: Home, label: 'Dashboard', path: `/admin/d/${userId}` },
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
     {icon: User, label: 'User Management', path: '/admin/usermanagement'},
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
     { icon: Map, label: 'Incidents Map', path: '/map/admin' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
   ] : [
-    { icon: Home, label: 'Home', path: '/user' },
+    { icon: Home, label: 'Home', path: `/user/${userId}`},
     { icon: AlertTriangle, label: 'Report an Incident', path: '/report' },
     { icon: Map, label: 'Incidents Map', path: '/map/user' },
     { icon: Bell, label: 'News & Updates', path: '/news' },

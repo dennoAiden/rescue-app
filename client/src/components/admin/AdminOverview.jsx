@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { 
   Users, 
   AlertTriangle, 
@@ -12,7 +12,11 @@ import {
 export default function AdminOverview() {
   const [users, setUsers] = useState([]);
   const [incidents, setIncidents] = useState([]);
-  
+
+  const params = useParams()
+  const id = params.id
+  console.log(id)
+    
   const fetchUsers = async () => {
     try {
       const response = await fetch('http://127.0.0.1:5555/users');

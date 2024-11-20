@@ -36,9 +36,20 @@ export default function Login() {
         
         if (response.ok) {
           return response.json().then(data => {
+            localStorage.setItem("access_token", data.access_token);
             localStorage.setItem('user_id', data.user_data.id)
-            toast.success('Login successful!');
-            data.role === 'user' ? navigate('/user') : navigate('/admin/d')
+            console.log(data.user_data.role)
+            
+            // Redirect based on the user's role
+            if (data.user_data.role === "admin") {
+              navigate(`/admin/d/${localStorage.getItem('user_id')}`);
+              toast.success(`Welcome ${data.user_data.username}!`);
+            } else if (data.user_data.role === "user") {
+              navigate(`/user/${localStorage.getItem('user_id')}`);
+              toast.success(`Welcome ${data.user_data.username}!`);
+            } else {
+              toast.error('You are not registered. Please contact support.');
+            }
           })
         } else {
           const errorMessage = await response.text();
