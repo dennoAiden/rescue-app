@@ -62,7 +62,6 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex bg-gray-900">
-      {/* Left section with image */}
       <div className="flex-1">
         <img
           src={signup}
@@ -71,7 +70,6 @@ export default function Signup() {
         />
       </div>
 
-      {/* Right section with form */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-md w-full text-white">
           <div className="text-center mb-8">
