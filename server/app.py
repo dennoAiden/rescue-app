@@ -1,4 +1,5 @@
 from flask import Flask,make_response,request,jsonify,session
+from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
@@ -7,6 +8,7 @@ from sqlalchemy import func, MetaData
 from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 import os
 
 from flask_jwt_extended import create_access_token,JWTManager, create_refresh_token, jwt_required, get_jwt_identity, current_user, verify_jwt_in_request, get_jwt
@@ -27,6 +29,18 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
 
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
+# Configuration       
+cloudinary.config( 
+    cloud_name = "donshmlbl", 
+    api_key = "242734965428198", 
+    api_secret = "bEjn6K699pjcC3kOL3bTGPZHOu8", # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
 
 
 CORS(app)
@@ -136,31 +150,6 @@ class UnbanUser(Resource):
             print(f"Error unbanning user: {e}")
             return {"error": str(e)}, 500
 
-class BanUser(Resource):
-    def patch(self, id):
-        user = User.query.get(id)
-        if not user:
-            return {"message": "User not found"}, 404
-
-        user.banned = True
-        db.session.commit()
-        return {"message": "User has been banned"}, 200
-
-class UnbanUser(Resource):
-    def patch(self, id):
-        try:
-            user = User.query.get(id)
-            if not user:
-                return {"message": "User not found"}, 404
-            
-            user.banned = False
-            db.session.commit()
-            return {"message": "User has been unbanned"}, 200
-        
-        except Exception as e:
-            print(f"Error unbanning user: {e}")
-            return {"error": str(e)}, 500
-
 # endpoints
 class Signup(Resource):
     def post(self):
@@ -212,10 +201,14 @@ class Signup(Resource):
     
 class Incident(Resource):
     def post(self):
-        data = request.get_json()
 
-        user_id = data.get('user_id')
-        user = User.query.get(user_id)
+        user_id = request.form.get('user_id')
+        description = request.form.get('description')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+
+        with db.session() as session:
+            user = session.get(User, user_id)
         
         # Check if the user exists and if they are banned
         if not user:
@@ -224,19 +217,56 @@ class Incident(Resource):
             return make_response(jsonify({"error": "User is banned and cannot post incidents"}), 403)
 
         new_incident = Report (
-            user_id = data.get('user_id'),
-            description = data.get('description'),
-            status = data.get('status'),
-            latitude=data.get('latitude'),
-            longitude=data.get('longitude'),
-            created_at = datetime.now()
+            user_id=user_id,
+            description=description,
+            status="under investigation",
+            latitude=latitude,
+            longitude=longitude,
+            created_at=datetime.now()
         )
 
         db.session.add(new_incident)
+        db.session.flush() 
+
+        images = request.files.getlist('media_image')  
+        videos = request.files.getlist('media_video')
+
+        # Upload images to Cloudinary
+        for image in images:
+            if image:
+                upload_result = cloudinary.uploader.upload(image, resource_type="image")
+                new_image = ImageUrl(
+                    incident_report_id=new_incident.id,
+                    media_image=upload_result['url']
+                )
+                db.session.add(new_image)
+
+        # Upload videos to Cloudinary
+        for video in videos:
+            if video:
+                upload_result = cloudinary.uploader.upload(video, resource_type="video")
+                new_video = VideoUrl(
+                    incident_report_id=new_incident.id,
+                    media_video=upload_result['url']
+                )
+                db.session.add(new_video)
+
+        # Commit the transaction
         db.session.commit()
+
+        # Prepare the response
+        response = new_incident.to_dict()  # Assuming `to_dict` method includes incident details
+        response["media"] = {
+            "images": [image.media_image for image in ImageUrl.query.filter_by(incident_report_id=new_incident.id)],
+            "videos": [video.media_video for video in VideoUrl.query.filter_by(incident_report_id=new_incident.id)]
+        }
+
+        return make_response(jsonify(response), 201)
+
+        # db.session.commit()
         
-        print(f"New Incident Created: {new_incident.to_dict()}")
-        return make_response(new_incident.to_dict(), 201)
+        # print(f"New Incident Created: {new_incident.to_dict()}")
+        # return make_response(new_incident.to_dict(), 201)
     
     def get(self):        
         incidents = [incident.to_dict() for incident in Report.query.all()]
@@ -299,29 +329,29 @@ class DeleteIncident(Resource):
 
         return make_response('Incident deleted')
     
-# incident media endpoint
-class MediaPost(Resource):
-    def post(self):
-        data = request.get_json()
-        incident_report_id = data.get('incident_report_id')
+# # incident media endpoint
+# class MediaPost(Resource):
+#     def post(self):
+#         data = request.get_json()
+#         incident_report_id = data.get('incident_report_id')
 
-        if data.get('media_image'):
-            new_image = ImageUrl(
-                incident_report_id=incident_report_id,
-                media_image=data.get('media_image')
-            )
-            db.session.add(new_image)
+#         if data.get('media_image'):
+#             new_image = ImageUrl(
+#                 incident_report_id=incident_report_id,
+#                 media_image=data.get('media_image')
+#             )
+#             db.session.add(new_image)
 
-        if data.get('media_video'):
-            new_video = VideoUrl(
-                incident_report_id=incident_report_id,
-                media_video=data.get('media_video')
-            )
-            db.session.add(new_video)
+#         if data.get('media_video'):
+#             new_video = VideoUrl(
+#                 incident_report_id=incident_report_id,
+#                 media_video=data.get('media_video')
+#             )
+#             db.session.add(new_video)
 
-        db.session.commit()
+#         db.session.commit()
 
-        return make_response({"message": "Media added!"}, 201)
+#         return make_response({"message": "Media added!"}, 201)
 
     
 class MediaDelete(Resource):
@@ -594,7 +624,7 @@ api.add_resource(DeleteIncident, '/deletes-incident/<int:id>')
 api.add_resource(EmergencyPost, '/emergency-reporting')
 
 # routes for media
-api.add_resource(MediaPost, '/media')
+# api.add_resource(MediaPost, '/media')
 api.add_resource(MediaDelete, '/media/<int:id>')
 
 
