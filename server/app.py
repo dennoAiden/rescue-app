@@ -23,7 +23,7 @@ from werkzeug.security import generate_password_hash
 from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating,ContactMessage, UserRoleEnum
 
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] ="sqlite:///app.db"
+app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescueapp_user:NDrLae58qZe2tTtHX47B7mugRrAEtXMz@dpg-csv17glumphs739p7je0-a.oregon-postgres.render.com/rescueapp"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
