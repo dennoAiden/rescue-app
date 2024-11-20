@@ -45,7 +45,6 @@ function App() {
           <Route path="/user" element={<UserDashboard />} />
           <Route path="/report" element={<IncidentReport />} />
           <Route path="/map/user" element={<IncidentMapUser />} />
-          <Route path="/map/admin" element={<IncidentMapAdmin />} />
           <Route path="/news" element={<News />} />
           <Route path="/incidents" element={<InDetails />} />
           <Route path="/settings" element={<UserSettings />} />
@@ -61,6 +60,7 @@ function App() {
           <Route path="admin/incidents" element={<ReportedIncidents />} />
           <Route path="admin/contact" element={<ContactMessages />} />
           <Route path="admin/settings" element={<AppSettings />} />
+          <Route path="/map/admin" element={<IncidentMapAdmin />} />
         </Route>
       </Routes>
       <Toaster position="top-right" />
