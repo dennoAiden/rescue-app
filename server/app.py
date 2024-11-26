@@ -196,7 +196,7 @@ class Signup(Resource):
         token = s.dumps(email, salt='email-confirm')
 
         
-        msg = Message('Confirm Email', sender='noreplyrescueapp.gmail.com', recipients=[email])
+        msg = Message('Confirm Email', sender='noreplyrescueapp@gmail.com', recipients=[email])
 
         link = url_for('confirmemail', token=token, _external=True)
 
