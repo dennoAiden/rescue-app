@@ -1,4 +1,4 @@
-# from app import app, db
+from app import app, db
 # from models import User, Report, Admin, ImageUrl, VideoUrl, EmergencyReport, Notification, Rating, UserRoleEnum, ReportStatusEnum, AdminActionEnum
 # import datetime
 # from werkzeug.security import generate_password_hash
@@ -83,25 +83,8 @@
 
 # print("Database seeding complete.")
 
-import smtplib
-from email.mime.text import MIMEText
-
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-USERNAME = "noreplyrescueapp@gmail.com"
-PASSWORD = "qzambnfrbjqpqlwp"  # Ensure you're using the correct password or app password
-
-try:
-    server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    server.starttls()
-    server.login(USERNAME, PASSWORD)
-    msg = MIMEText("This is a test email from the SMTP server.")
-    msg["Subject"] = "Test Email"
-    msg["From"] = USERNAME
-    msg["To"] = "recipient_email@gmail.com"
-    server.sendmail(USERNAME, "kelvinmulinge9702@gmail.com", msg.as_string())
-    print("Email sent successfully!")
-    server.quit()
-except Exception as e:
-    print(f"Error: {e}")
+with app.app_context():
+    import os
+    secret_key = os.urandom(24)
+    print(secret_key)
 

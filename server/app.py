@@ -31,6 +31,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescueapp_user:NDrLae58qZe2
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=300)
+app.config["JWT_TOKEN_LOCATION"] = ["headers"] 
+app.config["JWT_SECRET_KEY"] = b'\x89\x87T\x12\xd4\xce\xbcb@OZ\x81J\x93YT\xd5\xefv\xe5\xd4,^\x02'
 
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
@@ -52,6 +54,7 @@ CORS(app, resources={r"/*": {"origins": "https://incident-report-1.onrender.com"
 migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
+jwt = JWTManager(app)
 # bcrypt=Bcrypt(app)
 
 # Flask-Mail configuration
