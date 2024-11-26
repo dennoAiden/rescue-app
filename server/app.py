@@ -222,7 +222,7 @@ class Signup(Resource):
                     <p>Best,<br>The RescueApp Team</p>
                 </body>
             </html>
-        ''')
+        ''', 'html')
 
         msg['Subject'] = 'Confirm Your Email'
         msg['From'] = 'noreplyrescueapp@gmail.com'

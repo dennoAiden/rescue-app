@@ -35,27 +35,24 @@ export default function Login() {
         });
         
         if (response.ok) {
-          return response.json().then(data => {
-            localStorage.setItem("access_token", data.access_token);
-            localStorage.setItem('user_id', data.user_data.id)
-            console.log(data.user_data.role)
-            
-            // Redirect based on the user's role
-            if (data.user_data.role === "admin") {
-              navigate(`/admin/d/${localStorage.getItem('user_id')}`);
-              toast.success(`Welcome ${data.user_data.username}!`);
-            } else if (data.user_data.role === "user") {
-              navigate(`/user/${localStorage.getItem('user_id')}`);
-              toast.success(`Welcome ${data.user_data.username}!`);
-            } else {
-              toast.error('You are not registered. Please contact support.');
-            }
-          })
+          const data = await response.json(); // Use await instead of .then
+          localStorage.setItem("access_token", data.access_token);
+          localStorage.setItem('user_id', data.user_data.id);
+        
+          if (data.user_data.role === "admin") {
+            navigate(`/admin/d/${data.user_data.id}`); // Use data directly
+            toast.success(`Welcome ${data.user_data.username}!`);
+          } else if (data.user_data.role === "user") {
+            navigate(`/user/${data.user_data.id}`);
+            toast.success(`Welcome ${data.user_data.username}!`);
+          } else {
+            toast.error('You are not registered. Please contact support.');
+          }
         } else {
           const errorMessage = await response.text();
           toast.error(errorMessage || 'Login failed. Please check your credentials.');
         }
-      } catch (error) {
+          } catch (error) {
         toast.error('Login failed. Please try again.');
       }
     },
@@ -107,7 +104,7 @@ export default function Login() {
             <label className="block text-sm font-medium mb-2">Password</label>
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text": "password"}
                 name="password"
                 className="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-500"
                 placeholder="••••••••"
@@ -117,6 +114,13 @@ export default function Login() {
                 required
               />
               <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-gray-400"
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </button>
             </div>
             {formik.touched.password && formik.errors.password && (
               <div className="text-red-500 text-sm">{formik.errors.password}</div>
