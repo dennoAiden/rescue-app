@@ -1,8 +1,9 @@
-from flask import Flask,make_response,request,jsonify,session
+from flask import Flask,make_response,request,jsonify,session, url_for, redirect
 from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from sqlalchemy.orm import joinedload
 # from flask_bcrypt import Bcrypt
 from sqlalchemy import func, MetaData
@@ -26,7 +27,7 @@ app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescueapp_user:NDrLae58qZe2tTtHX47B7mugRrAEtXMz@dpg-csv17glumphs739p7je0-a.oregon-postgres.render.com/rescueapp"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
-app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=30)
+app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=300)
 
 app.config['JWT_ACCESS_REFRESH_EXPIRES']=timedelta(days=30)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
@@ -50,19 +51,16 @@ db.init_app(app)
 api=Api(app)
 # bcrypt=Bcrypt(app)
 
-
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'kipkiruidennis25@gmail.com'
-app.config['MAIL_PASSWORD'] = 'gzwp wywl ummf holw'
-app.config['MAIL_DEFAULT_SENDER'] = 'kipkiruidennis25@gmail.com'
+app.config['MAIL_USERNAME'] = 'noreplyrescueapp@gmail.com'
+app.config['MAIL_PASSWORD'] = 'qzambnfrbjqpqlwp'
+app.config['MAIL_DEFAULT_SENDER'] = 'noreplyrescueapp@gmail.com'
 
 mail = Mail(app)
-
-# initializing JWTManager
-jwt = JWTManager(app)
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 #  creating a custom hook that helps in knowing the roles of either the buyer or the administrator
 # a method called allow that uses the user roles and give users certain rights to access certain endpoints
@@ -87,7 +85,7 @@ def allow(*roles):
     return wrapper
 
 
-@jwt.user_lookup_loader
+# @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
     return User.query.filter_by(id=identity).first()
@@ -193,6 +191,32 @@ class Signup(Resource):
             created_at = datetime.now()
         )
 
+        email = data['email']
+
+        token = s.dumps(email, salt='email-confirm')
+
+        
+        msg = Message('Confirm Email', sender='noreplyrescueapp.gmail.com', recipients=[email])
+
+        link = url_for('confirmemail', token=token, _external=True)
+
+        msg.html = f'''
+            <html>
+                <body>
+                    <h2>Hi {data['username']},</h2>
+                    <p>Thank you for signing up for <strong>RescueApp</strong>! Please confirm your email by clicking the link below:</p>
+                    <p><a href="{link}" style="background-color: #F59E0B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm Email</a></p>
+                    <p>If the above button doesn't work, copy and paste this link into your browser:</p>
+                    <p>{link}</p>
+                    <br>
+                    <p>If you did not sign up, you can safely ignore this email.</p>
+                    <p>Best,<br>The RescueApp Team</p>
+                </body>
+            </html>
+        '''
+
+        mail.send(msg)
+
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -200,6 +224,63 @@ class Signup(Resource):
         except Exception as e:
             db.session.rollback()
             return make_response(jsonify({"message": "Error creating user", "error": str(e)}), 500)
+        
+class ConfirmEmail(Resource):
+    def get(self, token):
+        try:
+            # Decode the token
+            email = s.loads(token, salt='email-confirm', max_age=300)
+
+            # Find the user by email
+            user = User.query.filter_by(email=email).first()
+
+            if not user:
+                return make_response({"message": "Invalid token or user not found"}, 404)
+
+            # Update the user as confirmed
+            user.confirmed = True
+            db.session.commit()
+
+            return redirect('https://incident-report-1.onrender.com/login')
+        except SignatureExpired:
+            return make_response({"message": "Token has expired"}, 400)
+        except Exception as e:
+            return make_response({"message": f"Error confirming email: {str(e)}"}, 500)
+        
+class ResendConfirmation(Resource):
+    def post(self):
+        data = request.get_json()
+
+        user = User.query.filter_by(email=data.get('email')).first()
+        if not user:
+            return make_response({"message": "User not found"}, 404)
+
+        if user.confirmed:
+            return make_response({"message": "Email already confirmed."}, 400)
+
+        token = s.dumps(user.email, salt='email-confirm')
+        link = url_for('confirm_email', token=token, _external=True)
+
+        msg = Message('Confirm Your Email', sender='kuriaisac@gmail.com', recipients=[user.email])
+        msg.html = f'''
+            <html>
+                <body>
+                    <h2>Hi {user.username},</h2>
+                    <p>We noticed you requested a new confirmation email for your <strong>RescueApp</strong> account. Please confirm your email by clicking the link below:</p>
+                    <p><a href="{link}" style="background-color: #F59E0B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirm Email</a></p>
+                    <p>If the above button doesn't work, copy and paste this link into your browser:</p>
+                    <p>{link}</p>
+                    <br>
+                    <p>If you did not request this email, you can safely ignore it.</p>
+                    <p>Best,<br>The RescueApp Team</p>
+                </body>
+            </html>
+        '''
+
+        mail.send(msg)
+
+        return make_response({"message": "Confirmation email resent."}, 200)
+
 
 # incident reports endpoint
     
@@ -547,12 +628,17 @@ class Analytics(Resource):
 class Login(Resource):
     def post(self):
         data = request.get_json()
-        email = data["email"]
+        email = data['email']
 
         user = User.query.filter_by(email=email).first()
 
         if not user:
             return make_response({"message": f"User with email {email} does not exist"}, 404)
+        
+        if not user.confirmed:
+            return make_response({
+                "message": "Email not confirmed. Please confirm your email to proceed."
+            }, 403)
         
         if not check_password_hash(user.password, data["password"]):
             return make_response({"message": "The password entered is incorrect"}, 403)
@@ -560,9 +646,6 @@ class Login(Resource):
         # creating an access and a refresh token
         access_token = create_access_token(identity=user.id, additional_claims={"role": user.role})
         refresh_token = create_refresh_token(identity=user.id)
-
-        # user1 = user.to_dict()
-
 
         return make_response({
             "message": "Logged in",
@@ -579,6 +662,7 @@ class Login(Resource):
         access_token = create_access_token(identity=identity)
         response = jsonify(access_token=access_token)
         return response
+    
    
 class Contact(Resource):
     def post(self):
@@ -632,6 +716,8 @@ api.add_resource(GetUser, '/user/<int:id>')
 api.add_resource(Users, '/users')
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
+api.add_resource(ConfirmEmail, '/confirmemail/<string:token>')
+api.add_resource(ResendConfirmation, '/resend-confirmation')
 api.add_resource(BanUser,'/users/<int:id>/ban')
 api.add_resource(UnbanUser, '/users/<int:id>/unban')
 

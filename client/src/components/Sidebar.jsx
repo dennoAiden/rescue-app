@@ -5,6 +5,7 @@ import {
   Settings, 
   LogOut, 
   Bell, 
+  Phone,
   FileText,
   Home,
   User, 
@@ -17,6 +18,7 @@ export default function Sidebar({ isAdmin = false }) {
     { icon: Home, label: 'Dashboard', path: `/admin/d/${userId}` },
     { icon: AlertTriangle, label: 'Incident Reports', path: '/admin/incidents' },
     {icon: User, label: 'User Management', path: '/admin/usermanagement'},
+    // {icon: Phone, label: 'Contact Info', path: '/admin/contact'},
     { icon: Bell, label: 'Analytics', path: '/admin/analytics' },
     { icon: Map, label: 'Incidents Map', path: '/map/admin' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }

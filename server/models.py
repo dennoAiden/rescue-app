@@ -38,6 +38,7 @@ class User(db.Model, SerializerMixin):
     password = db.Column(db.String(), nullable=False)
     role = db.Column(db.String())
     created_at = db.Column(db.DateTime)
+    confirmed = db.Column(db.Boolean, default=False)
     banned = db.Column(db.Boolean, default=False)
 
 

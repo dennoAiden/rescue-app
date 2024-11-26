@@ -12,8 +12,11 @@ import UserSettings from './components/user/UserSettings';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import ForgotPassword from './components/auth/ForgotPassword.jsx';
+import VerifyEmail from './components/VerifyEmail.jsx';
 import Home from './components/Home';
 import Contact from './components/Contact';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import NotFound from './components/NotFound.jsx';
 
 import AppSettings from './components/admin/AppSettings.jsx';
 import AdminOverview from './components/admin/AdminOverview.jsx';
@@ -31,35 +34,37 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/services" element={<Services />} />
+        <Route path="/" element={<Home />} errorElement={<ErrorBoundary />} />
+        <Route path="/about" element={<AboutUs />} errorElement={<ErrorBoundary />}/>
+        <Route path="/services" element={<Services errorElement={<ErrorBoundary />}/>} />
 
         {/* Authentication routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/forgotP" element={<ForgotPassword />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} errorElement={<ErrorBoundary />}/>
+        <Route path="/signup" element={<Signup />} errorElement={<ErrorBoundary />}/>
+        <Route path="/forgotP" element={<ForgotPassword errorElement={<ErrorBoundary />}/>} />
+        <Route path="/contact" element={<Contact />} errorElement={<ErrorBoundary />}/>
+        <Route path="/verify-email" element={<VerifyEmail errorElement={<ErrorBoundary />}/>} />
 
         <Route element={<Layout isAdmin={false} />}>
-          <Route path="/user/:id" element={<UserDashboard />} />
-          <Route path="/report" element={<IncidentReport />} />
-          <Route path="/map/user" element={<IncidentMapUser />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/incidents" element={<InDetails />} />
-          <Route path="/settings" element={<UserSettings />} />
+          <Route path="/user/:id" element={<UserDashboard errorElement={<ErrorBoundary />}/>} />
+          <Route path="/report" element={<IncidentReport />} errorElement={<ErrorBoundary />}/>
+          <Route path="/map/user" element={<IncidentMapUser />} errorElement={<ErrorBoundary />}/>
+          <Route path="/news" element={<News />} errorElement={<ErrorBoundary />}/>
+          <Route path="/incidents" element={<InDetails />} errorElement={<ErrorBoundary />}/>
+          <Route path="/settings" element={<UserSettings />} errorElement={<ErrorBoundary />}/>
         </Route>
 
     
         <Route  element={<Layout isAdmin={true} />}>
-          <Route path="/admin/d/:id" element={<AdminOverview />} />
-          <Route path="/admin/analytics" element={<Analytics />} />
-          <Route path="/admin/usermanagement" element={<UserData />} />
-          <Route path="/admin/incidents" element={<ReportedIncidents />} />
-          <Route path="/admin/contact" element={<Contact />} />
-          <Route path="/admin/settings" element={<AppSettings />} />
-          <Route path="/map/admin" element={<IncidentMapAdmin />} />
+          <Route path="/admin/d/:id" element={<AdminOverview />} errorElement={<ErrorBoundary />}/>
+          <Route path="/admin/analytics" element={<Analytics />} errorElement={<ErrorBoundary />}/>
+          <Route path="/admin/usermanagement" element={<UserData />} errorElement={<ErrorBoundary />}/>
+          <Route path="/admin/incidents" element={<ReportedIncidents />} errorElement={<ErrorBoundary />}/>
+          <Route path="/admin/contact" element={<Contact />} errorElement={<ErrorBoundary />}/>
+          <Route path="/admin/settings" element={<AppSettings />} errorElement={<ErrorBoundary />}/>
+          <Route path="/map/admin" element={<IncidentMapAdmin />} errorElement={<ErrorBoundary />}/>
         </Route>
+        <Route path="*" element={<NotFound />} errorElement={<ErrorBoundary />} />
       </Routes>
       <Toaster position="top-right" />
     </Router>

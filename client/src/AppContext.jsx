@@ -14,8 +14,10 @@ const AppContextProvider = (props) => {
         .then((data) => setUserData(data))
     }, [user_id])
 
+    const userEmail = userData?.email;
+
     const value = {
-        userData, setUserData
+        userData, setUserData, userEmail
     }
 
     useEffect(() => {
