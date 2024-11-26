@@ -1,4 +1,4 @@
-from flask import Flask,make_response,request,jsonify,session, url_for, redirect
+from flask import Flask,make_response,request,jsonify,session, url_for, redirect, send_from_directory
 from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
@@ -45,7 +45,7 @@ cloudinary.config(
 )
 
 
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://incident-report-1.onrender.com"}})
 migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
@@ -61,6 +61,10 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreplyrescueapp@gmail.com'
 
 mail = Mail(app)
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+@app.route('/output.css')
+def serve_css():
+    return send_from_directory('static', 'output.css', mimetype='text/css')
 
 #  creating a custom hook that helps in knowing the roles of either the buyer or the administrator
 # a method called allow that uses the user roles and give users certain rights to access certain endpoints
