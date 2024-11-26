@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
+import smtplib
+from email.mime.text import MIMEText
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from sqlalchemy.orm import joinedload
 # from flask_bcrypt import Bcrypt
@@ -172,27 +174,23 @@ class Signup(Resource):
         # Get JSON data from the request
         data = request.get_json()
 
+        # Validate role
         if data.get('role') and data.get('role') not in ['user', 'admin']:
             return make_response({"message": "role not found"}, 400)
 
         # Check if all necessary fields are provided
-        if not all([data.get('username'), data.get('email'),data.get('phone'), data.get('password')]):
+        if not all([data.get('username'), data.get('email'), data.get('phone'), data.get('password')]):
             return make_response(jsonify({"message": "Missing required fields"}), 400)
         
         # Validate email format
         if "@" not in data["email"]:
-            # creating and returning a response based on the response body
-            response_body ={"message": "Please include an '@' in the email address."}
-            response = make_response(response_body, 400)
-            return response
+            return make_response({"message": "Please include an '@' in the email address."}, 400)
 
         # Check if email already exists in the database
         if User.query.filter_by(email=data["email"]).first():
-            # creating and returning a response based on the response body
-            response_body ={"message": "Email already exists"}
-            response = make_response(response_body, 400)
-            return response
+            return make_response({"message": "Email already exists"}, 400)
 
+        # Hash the password
         password = generate_password_hash(data["password"])
 
         # Create new user
@@ -202,19 +200,16 @@ class Signup(Resource):
             email=data.get('email'),
             password=password,
             role=data.get('role', 'user'),
-            created_at = datetime.now()
+            created_at=datetime.now()
         )
 
+        # Generate confirmation token and link
         email = data['email']
-
         token = s.dumps(email, salt='email-confirm')
-
-        
-        msg = Message('Confirm Email', sender='noreplyrescueapp@gmail.com', recipients=[email])
-
         link = url_for('confirmemail', token=token, _external=True)
 
-        msg.html = f'''
+        # Compose the confirmation email content
+        msg = MIMEText(f'''
             <html>
                 <body>
                     <h2>Hi {data['username']},</h2>
@@ -227,10 +222,24 @@ class Signup(Resource):
                     <p>Best,<br>The RescueApp Team</p>
                 </body>
             </html>
-        '''
+        ''')
 
-        send_email(current_app, msg)
+        msg['Subject'] = 'Confirm Your Email'
+        msg['From'] = 'noreplyrescueapp@gmail.com'
+        msg['To'] = email
 
+        # Send the confirmation email
+        try:
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                server.starttls()
+                server.login('noreplyrescueapp@gmail.com', 'qzambnfrbjqpqlwp')  # Use your app password
+                server.sendmail('noreplyrescueapp@gmail.com', email, msg.as_string())
+                print("Email sent successfully!")
+        except Exception as e:
+            print(f"Error sending email: {e}")
+            return make_response(jsonify({"message": "Error sending confirmation email", "error": str(e)}), 500)
+
+        # Add user to the database after successful email send
         try:
             db.session.add(new_user)
             db.session.commit()
