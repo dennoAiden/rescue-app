@@ -1,4 +1,4 @@
-from flask import Flask,make_response,request,jsonify,session, url_for, redirect, send_from_directory
+from flask import Flask,make_response,request,jsonify,session, current_app, url_for, redirect, send_from_directory
 from sqlalchemy.orm import Session
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
@@ -22,6 +22,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating,ContactMessage, UserRoleEnum
+from threading import Thread
 
 app=Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescueapp_user:NDrLae58qZe2tTtHX47B7mugRrAEtXMz@dpg-csv17glumphs739p7je0-a.oregon-postgres.render.com/rescueapp"
@@ -100,6 +101,15 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     return response
+
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(f"Error sending email: {str(e)}")
+def send_email(app, msg):
+    Thread(target=send_async_email, args=(app, msg)).start()
 
 
 
@@ -219,7 +229,7 @@ class Signup(Resource):
             </html>
         '''
 
-        mail.send(msg)
+        send_email(current_app, msg)
 
         try:
             db.session.add(new_user)
