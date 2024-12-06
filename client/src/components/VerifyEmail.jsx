@@ -36,7 +36,7 @@ export default function VerifyEmail() {
         <h1 className="text-3xl font-bold mb-4">Verify Your Email</h1>
         <p className="text-gray-400 mb-6">
           A confirmation email has been sent to your inbox. Please check your email and click the
-          confirmation link to activate your account.
+          confirmation link to activate your account <span className="text-blue-500">or check SPAM.</span>
         </p>
         <p className="text-sm text-gray-500 mb-6">
           Didn’t receive the email? <button onClick={handleResendConfirmation} className="text-yellow-500">Resend</button>
