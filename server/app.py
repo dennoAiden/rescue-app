@@ -27,7 +27,7 @@ from models import db, User, Report, Notification, Admin, EmergencyReport, Image
 from threading import Thread
 
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://rescueapp_user:NDrLae58qZe2tTtHX47B7mugRrAEtXMz@dpg-csv17glumphs739p7je0-a.oregon-postgres.render.com/rescueapp"
+app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://incidentreport_chmo_user:idKOggfhAQGv8n0JsJAnZj7Lu59clVVv@dpg-cubhvhin91rc7393mg1g-a.oregon-postgres.render.com/incidentreport_chmo"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=300)
@@ -45,7 +45,7 @@ from cloudinary.utils import cloudinary_url
 cloudinary.config( 
     cloud_name = "donshmlbl", 
     api_key = "242734965428198", 
-    api_secret = "bEjn6K699pjcC3kOL3bTGPZHOu8", # Click 'View API Keys' above to copy your API secret
+    api_secret = "bEjn6K699pjcC3kOL3bTGPZHOu8",
     secure=True
 )
 
@@ -55,7 +55,6 @@ migrate=Migrate(app,db)
 db.init_app(app)
 api=Api(app)
 jwt = JWTManager(app)
-# bcrypt=Bcrypt(app)
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

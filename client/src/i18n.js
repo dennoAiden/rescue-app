@@ -14,7 +14,6 @@ const resources = {
       "English": "English",
       "Swahili": "Swahili",
       "Appearance": "Appearance",
-      // Add other translations here
     }
   },
   sw: {
@@ -28,7 +27,6 @@ const resources = {
       "English": "Kiingereza",
       "Swahili": "Kiswahili",
       "Appearance": "Muonekano",
-      // Add other translations here
     }
   }
 };
@@ -37,10 +35,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // Default language
-    fallbackLng: 'en', // Fallback language in case of missing translations
+    lng: 'en', 
+    fallbackLng: 'en',
     interpolation: {
-      escapeValue: false, // React already escapes values
+      escapeValue: false,
     }
   });
 
