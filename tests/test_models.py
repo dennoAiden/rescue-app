@@ -1,8 +1,8 @@
 import pytest
 from datetime import datetime
 from sqlalchemy.exc import StatementError, IntegrityError, DataError
-from app import app, db
-from models import User, Report, Admin, EmergencyReport, ImageUrl, VideoUrl, Notification
+from server.app import app, db
+from server.models import User, Report, Admin, EmergencyReport, ImageUrl, VideoUrl, Notification
 
 @pytest.fixture
 def test_db():
