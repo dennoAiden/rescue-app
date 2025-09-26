@@ -18,7 +18,7 @@ export default function ContactPage() {
     }),
     onSubmit: async (values, { resetForm }) => {
       try {
-        const response = await fetch('https://incident-report-98rf.onrender.com/contact', {
+        const response = await fetch('https://incident-report-apps.onrender.com/contact', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

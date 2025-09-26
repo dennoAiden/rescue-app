@@ -44,7 +44,7 @@ export default function IncidentReport() {
           formData.append('media_video', video);
         });
 
-        const response = await fetch('https://incident-report-98rf.onrender.com/incidents', {
+        const response = await fetch('https://incident-report-apps.onrender.com/incidents', {
           method: 'POST',
           body: formData,
         });

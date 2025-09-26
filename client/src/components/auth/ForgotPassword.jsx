@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://incident-report-98rf.onrender.com/forgot-password", {
+      const response = await fetch("https://incident-report-apps.onrender.com/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

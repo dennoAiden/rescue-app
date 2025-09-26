@@ -19,7 +19,7 @@ export default function AdminOverview() {
     
   const fetchUsers = async () => {
     try {
-      const response = await fetch('https://incident-report-98rf.onrender.com/users');
+      const response = await fetch('https://incident-report-apps.onrender.com/users');
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
       setUsers(data);
@@ -30,7 +30,7 @@ export default function AdminOverview() {
 
   const fetchIncidents = async () => {
     try {
-      const response = await fetch('https://incident-report-98rf.onrender.com/incidents');
+      const response = await fetch('https://incident-report-apps.onrender.com/incidents');
       if (!response.ok) throw new Error('Failed to fetch incidents');
       const data = await response.json();
       setIncidents(data);

@@ -29,7 +29,7 @@ export default function IncidentDetails() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`https://incident-report-98rf.onrender.com/user/${userId}`)
+    fetch(`https://incident-report-apps.onrender.com/user/${userId}`)
       .then((response) => response.json())
       .then(async (data) => {
         const fetchedIncidents = data.incident_reports;
@@ -55,7 +55,7 @@ export default function IncidentDetails() {
         setLoading(false);
       });
 
-    fetch("https://incident-report-98rf.onrender.com/ratings")
+    fetch("https://incident-report-apps.onrender.com/ratings")
       .then((response) => response.json())
       .then((data) => {
         setReviews(data.message);

@@ -8,7 +8,7 @@ const ContactMessages = () => {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const response = await fetch("https://incident-report-98rf.onrender.com/contact");
+                const response = await fetch("https://incident-report-apps.onrender.com/contact");
                 if (!response.ok) {
                     throw new Error("Failed to fetch messages");
                 }

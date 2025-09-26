@@ -13,7 +13,7 @@ export default function VerifyEmail() {
     }
 
     try {
-      const response = await fetch('https://incident-report-98rf.onrender.com/resend-confirmation', {
+      const response = await fetch('https://incident-report-apps.onrender.com/resend-confirmation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userEmail }),

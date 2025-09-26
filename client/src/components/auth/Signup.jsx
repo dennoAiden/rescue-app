@@ -33,7 +33,7 @@ export default function Signup() {
     validationSchema: signupValidationSchema,
     onSubmit: async (values) => {
       try {
-        const response = await fetch('https://incident-report-98rf.onrender.com/signup', {
+        const response = await fetch('https://incident-report-apps.onrender.com/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

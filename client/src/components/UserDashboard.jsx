@@ -16,7 +16,7 @@ export default function UserDashboard() {
   const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
 
   useEffect(() => {
-    fetch(`https://incident-report-98rf.onrender.com/user/${id}`)
+    fetch(`https://incident-report-apps.onrender.com/user/${id}`)
       .then(response => response.json())
       .then(data => {
         setUserData(data);
