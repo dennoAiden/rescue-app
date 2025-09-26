@@ -21,9 +21,9 @@ jobs:
         
     - name: Test backend
       run: |
-        pip install -r requirements.txt
+        pip install -r server/requirements.txt
         pip install pytest
-        pytest
+        pytest tests
         
     # Test React frontend
     - name: Set up Node
