@@ -1,7 +1,7 @@
 import pytest
 from flask import json
-from app import app, db
-from models import User, Report, Admin, EmergencyReport
+from server.app import app, db
+from server.models import User, Report, Admin, EmergencyReport
 
 @pytest.fixture
 def client():
