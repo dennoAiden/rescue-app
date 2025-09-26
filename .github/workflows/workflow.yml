@@ -21,9 +21,10 @@ jobs:
         
     - name: Test backend
       run: |
-        pip install -r server/requirements.txt
-        pip install pytest
-        pytest tests
+       pip install -r server/requirements.txt
+       pip install pytest
+       PYTHONPATH=pytest --maxfail=5 --disable-warnings -q
+
         
     # Test React frontend
     - name: Set up Node
