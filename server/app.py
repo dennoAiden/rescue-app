@@ -23,7 +23,7 @@ from flask_restful import Resource,Api, reqparse
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating,ContactMessage, UserRoleEnum
+from server.models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating, ContactMessage, UserRoleEnum
 from threading import Thread
 
 app=Flask(__name__)
