@@ -4,6 +4,7 @@ bcrypt==4.2.0
 blinker==1.8.2
 certifi==2024.6.2
 charset-normalizer==3.4.0
+cloudinary==1.33.0
 click==8.1.7
 distlib==0.3.8
 exceptiongroup==1.2.2
