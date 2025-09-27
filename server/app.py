@@ -37,7 +37,6 @@ else:
     )
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=300)
 app.config["JWT_TOKEN_LOCATION"] = ["headers"] 
