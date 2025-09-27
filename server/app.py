@@ -27,14 +27,15 @@ from werkzeug.security import generate_password_hash
 from server.models import db, User, Report, Notification, Admin, EmergencyReport, ImageUrl, VideoUrl, Rating, ContactMessage, UserRoleEnum
 from threading import Thread
 
-app=Flask(__name__)
-if os.getenv("TESTING") == "1":
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
-else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "postgresql://incidentreport_chmo_user:idKOggfhAQGv8n0JsJAnZj7Lu59clVVv"
-        "@dpg-cubhvhin91rc7393mg1g-a.oregon-postgres.render.com/incidentreport_chmo"
-    )
+def create_app(testing=False):
+    app = Flask(__name__)
+    
+    if testing:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        app.config["TESTING"] = True
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://...your-prod-url..."
+
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'

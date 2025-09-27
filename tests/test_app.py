@@ -1,20 +1,19 @@
 import pytest
 import os
 from flask import json
-from server.app import app, db
+from server.app import create_app, db
 from server.models import User, Report, Admin, EmergencyReport
 
 @pytest.fixture
 def client():
-    os.environ["TESTING"] = "1"  # tells app.py to use SQLite
-    app.config['TESTING'] = True
-
+    app = create_app(testing=True)
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
             yield client
             db.session.remove()
             db.drop_all()
+
 
 @pytest.fixture
 def sample_user():
