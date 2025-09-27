@@ -23,6 +23,7 @@ jobs:
       run: |
        pip install -r server/requirements.txt
        pip install pytest
+       export TESTING=1
        PYTHONPATH=. pytest tests --maxfail=5 --disable-warnings -q
 
         
