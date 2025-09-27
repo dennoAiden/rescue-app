@@ -1,5 +1,6 @@
 from flask import Flask,make_response,request,jsonify,session, current_app, url_for, redirect, send_from_directory
 from sqlalchemy.orm import Session
+from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
@@ -27,8 +28,16 @@ from server.models import db, User, Report, Notification, Admin, EmergencyReport
 from threading import Thread
 
 app=Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] ="postgresql://incidentreport_chmo_user:idKOggfhAQGv8n0JsJAnZj7Lu59clVVv@dpg-cubhvhin91rc7393mg1g-a.oregon-postgres.render.com/incidentreport_chmo"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
+if os.getenv("TESTING") == "1":
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "postgresql://incidentreport_chmo_user:idKOggfhAQGv8n0JsJAnZj7Lu59clVVv"
+        "@dpg-cubhvhin91rc7393mg1g-a.oregon-postgres.render.com/incidentreport_chmo"
+    )
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = '0c3ZMJFCAm5T-NK5ZzBv50ZLuxamAllTob6uzEqRR14'
 app.config['JWT_ACCESS_TOKEN_EXPIRES']=timedelta(minutes=300)
 app.config["JWT_TOKEN_LOCATION"] = ["headers"] 
